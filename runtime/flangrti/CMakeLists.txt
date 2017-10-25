@@ -125,8 +125,10 @@ set_target_properties(flangrti_shared flangrti_static
                       PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${FLANG_RTE_LIB_DIR})
 
 if (NOT MSVC)
-   target_compile_options(flangrti_static PRIVATE -fPIC)
-   target_compile_options(flangrti_shared PRIVATE -fPIC)
+  target_compile_options(flangrti_static PRIVATE -fPIC)
+  target_compile_options(flangrti_shared PRIVATE -fPIC)
+else()
+  set_target_properties(flangrti_shared PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
 target_compile_options(flangrti_static PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-Mreentrant>)
