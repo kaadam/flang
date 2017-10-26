@@ -515,7 +515,9 @@ target_link_libraries(flang_shared flangrti_shared)
 
 # Resolve symbols against libm and librt
 if (NOT MSVC)
-target_link_libraries(flang_shared m rt)
+  target_link_libraries(flang_shared m rt)
+else()
+  set_target_properties(flang_shared PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
 set(SHARED_LIBRARY FALSE)
