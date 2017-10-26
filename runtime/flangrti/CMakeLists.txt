@@ -67,9 +67,9 @@ add_flang_library(flangrti_static
   ${SHARED_SOURCES}
   )
 if (MSVC)
-set_property(TARGET flangrti_static PROPERTY OUTPUT_NAME flangrti_static)
-else
-set_property(TARGET flangrti_static PROPERTY OUTPUT_NAME flangrti)
+  set_property(TARGET flangrti_static PROPERTY OUTPUT_NAME libflangrti)
+else()
+  set_property(TARGET flangrti_static PROPERTY OUTPUT_NAME flangrti)
 endif()
 
 

@@ -484,7 +484,7 @@ set_target_properties(flang_static
   Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/include-static
 )
 if (MSVC)
-set_property(TARGET flang_static PROPERTY OUTPUT_NAME flang_static)
+set_property(TARGET flang_static PROPERTY OUTPUT_NAME libflang)
 else()
 set_property(TARGET flang_static PROPERTY OUTPUT_NAME flang)
 endif()
