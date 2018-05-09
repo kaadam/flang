@@ -80,22 +80,25 @@ add_flang_library(flangrti_shared
   )
 
 # Resolve symbols against libm
-target_link_libraries(flangrti_shared m)
+if (NOT MSVC)
+  target_link_libraries(flangrti_shared PUBLIC m)
+endif()
+
 
 # Import OpenMP
 if (NOT DEFINED LIBOMP_EXPORT_DIR)
   find_library( 
     FLANG_LIBOMP
-    libomp.so
+    NAMES omp libomp
     HINTS ${CMAKE_BINARY_DIR}/lib)
-  target_link_libraries(flangrti_shared ${FLANG_LIBOMP})
+  target_link_libraries(flangrti_shared PUBLIC ${FLANG_LIBOMP})
 endif()
 
 find_library( 
   LIBPGMATH
-  libpgmath.so
+  NAMES pgmath libpgmath
   HINTS ${CMAKE_BINARY_DIR}/lib)
-target_link_libraries(flangrti_shared ${LIBPGMATH})
+target_link_libraries(flangrti_shared PUBLIC ${LIBPGMATH})
 
 if( ${TARGET_ARCHITECTURE} STREQUAL "aarch64" )
   target_compile_definitions(flangrti_static PRIVATE TARGET_LINUX_ARM)
@@ -121,9 +124,10 @@ target_include_directories(flangrti_shared
 set_target_properties(flangrti_shared flangrti_static
                       PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${FLANG_RTE_LIB_DIR})
 
-target_compile_options(flangrti_static PRIVATE -fPIC)
-
-target_compile_options(flangrti_shared PRIVATE -fPIC)
+if (NOT MSVC)
+   target_compile_options(flangrti_static PRIVATE -fPIC)
+   target_compile_options(flangrti_shared PRIVATE -fPIC)
+endif()
 
 target_compile_options(flangrti_static PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-Mreentrant>)
 
