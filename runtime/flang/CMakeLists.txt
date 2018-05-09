@@ -8,7 +8,11 @@ enable_language(C ASM Fortran) # Enable assembly and Fortran
 
 SET(ASM_OPTIONS "-DLINUX_ELF")
 SET(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}" )
-SET(CMAKE_SHARED_LINKER_FLAGS "-no-flang-libs")
+if (NOT MSVC)
+  SET(CMAKE_SHARED_LINKER_FLAGS "-no-flang-libs")
+else ()
+  SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -no-flang-libs")
+endif ()
 
 # We are using Fortran driver to build this library with fresh compiler
 # components, so point its binary directory to the build directory to pick up
@@ -475,7 +479,15 @@ add_flang_library(flang_static
   ${FTN_SUPPORT_I8}
   ${SHARED_SOURCES}
   )
+set_target_properties(flang_static
+  PROPERTIES
+  Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/include-static
+)
+if (MSVC)
+set_property(TARGET flang_static PROPERTY OUTPUT_NAME flang_static)
+else()
 set_property(TARGET flang_static PROPERTY OUTPUT_NAME flang)
+endif()
 
 set(SHARED_LIBRARY TRUE)
 add_flang_library(flang_shared
@@ -499,9 +511,12 @@ set_property(TARGET flang_shared PROPERTY OUTPUT_NAME flang)
 #
 add_dependencies(flang_shared flang_static)
 
-target_link_libraries(flang_shared ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lib/libflangrti.so)
+target_link_libraries(flang_shared flangrti_shared)
+
 # Resolve symbols against libm and librt
+if (NOT MSVC)
 target_link_libraries(flang_shared m rt)
+endif()
 
 set(SHARED_LIBRARY FALSE)
 
@@ -556,68 +571,12 @@ set_source_files_properties(
   COMPILE_FLAGS "-ffast-math"
   )
 
-## CMake does not handle module dependencies between Fortran files,
-## we need to help it
-
-# State the module that the source is producing
-set_source_files_properties(
-  iso_c_bind.F95
-  PROPERTIES
-  OBJECT_OUTPUTS ${CMAKE_Fortran_MODULE_DIRECTORY}/iso_c_binding.mod
-  )
-
-# State a dependency on the module
-set_source_files_properties(
-  ieee_arithmetic.F95
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/iso_c_binding.mod
-  OBJECT_OUTPUTS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_arithmetic.mod
-  )
-
-set_source_files_properties(
-  ieee_exceptions.F95
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/iso_c_binding.mod
-  OBJECT_OUTPUTS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_exceptions.mod
-  )
-
-# State a dependency on the module
-set_source_files_properties(
-  ${I8_FILES_DIR}/ieee_arithmetic.F95
-  PROPERTIES 
-  COMPILE_DEFINITIONS DESC_I8
-  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/iso_c_binding.mod
-  OBJECT_OUTPUTS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_arithmetic_la.mod
-  )
-
-set_source_files_properties(
-  ${I8_FILES_DIR}/ieee_exceptions.F95
-  PROPERTIES 
-  COMPILE_DEFINITIONS DESC_I8
-  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/iso_c_binding.mod
-  OBJECT_OUTPUTS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_exceptions_la.mod
-  )
-
-set_source_files_properties(
-  norm2_1.F95
-  PROPERTIES 
-  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_arithmetic.mod
-  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_exceptions.mod
-)
-
-set_source_files_properties(
-   ${I8_FILES_DIR}/norm2_1.F95
-  PROPERTIES 
-  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_arithmetic_la.mod
-  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_exceptions_la.mod
-)
-
 set_target_properties(flang_static flang_shared
   PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${FLANG_RTE_LIB_DIR}
   )
-  
-target_include_directories(flang_static 
+
+target_include_directories(flang_static
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -641,9 +600,10 @@ add_dependencies(flang_shared
   flang2
   )
 
-target_compile_options(flang_static PRIVATE -fPIC)
-
-target_compile_options(flang_shared PRIVATE -fPIC)
+if (NOT MSVC)
+  target_compile_options(flang_static PRIVATE -fPIC)
+  target_compile_options(flang_shared PRIVATE -fPIC)
+endif()
 
 target_compile_options(flang_static PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-Mreentrant>)
 
