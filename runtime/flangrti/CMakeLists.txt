@@ -66,7 +66,11 @@ add_flang_library(flangrti_static
   ${PGC_SRC_FILES}
   ${SHARED_SOURCES}
   )
+if (MSVC)
+set_property(TARGET flangrti_static PROPERTY OUTPUT_NAME flangrti_static)
+else
 set_property(TARGET flangrti_static PROPERTY OUTPUT_NAME flangrti)
+endif()
 
 
 set(SHARED_LIBRARY TRUE)
