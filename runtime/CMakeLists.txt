@@ -9,10 +9,8 @@ set (RUNTIME_SHARED_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shared)
 add_definitions(
  -DMAXCPUS=256 
  -DMAXCPUSL=8 
- -DMAXCPUSR=8 
- -DTARGET_LINUX 
- -DTARGET_LLVM 
- -DLINUX 
+ -DMAXCPUSR=8
+ -DTARGET_LLVM
  -DPGF90 
  -DPGFLANG
  -DNATIVE_FPCVT
@@ -20,11 +18,22 @@ add_definitions(
  -DINLINE_MEMOPS
 )
 
+if( ${TARGET_OS} STREQUAL "Linux" )
+  add_definitions(
+   -DTARGET_LINUX
+   -DLINUX
+  )
+endif()
+
 if( ${TARGET_ARCHITECTURE} STREQUAL "x86_64" )
   add_definitions(
    -DTARGET_X8664
-   -DTARGET_LINUX_X8664
   )
+  if( ${TARGET_OS} STREQUAL "Linux" )
+    add_definitions(
+     -DTARGET_LINUX_X8664
+    )
+  endif()
 elseif( ${TARGET_ARCHITECTURE} STREQUAL "aarch64" )
   add_definitions(
    -DTARGET_LLVM_ARM64
