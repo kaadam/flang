@@ -4,8 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #
 
-set(ENV{LC_ALL} "C")
-
 add_executable(upperl
   upperl.c
   )
@@ -25,7 +23,7 @@ file(WRITE ${UTILS_UPPER_BIN_DIR}/upperilm.sort "${UPPERILM_H_CONTENTS_SORTED}")
 
 add_custom_command( 
   OUTPUT ${UTILS_UPPER_BIN_DIR}/upperilm.h
-  COMMAND ${CMAKE_BINARY_DIR}/bin/upperl ${UTILS_UPPER_BIN_DIR}/upperilm.sort ${UTILS_UPPER_BIN_DIR}/upperilm.h
+  COMMAND upperl ${UTILS_UPPER_BIN_DIR}/upperilm.sort ${UTILS_UPPER_BIN_DIR}/upperilm.h
   DEPENDS upperl ${UTILS_UPPER_DIR}/upperilm.in
   )
 
