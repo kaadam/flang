@@ -5,9 +5,12 @@
  *
  */
 
+#include "flangrti_config.h"
 #include <stdint.h>
 #include <signal.h>
+#if defined(HAVE_GREGSET_T)
 #include <sys/ucontext.h>
+#endif
 #include <execinfo.h>
 #include <stdioInterf.h>
 #include "dumpregs.h"
@@ -82,7 +85,11 @@ static struct sigs sigs[] = {
     {0, CODNULL, NULL} /* end of list */
 };
 
+#if defined(HAVE_GREGSET_T)
 static gregset_t *regs; /* pointer to regs at signal  */
+#else
+static void *regs; /* pointer to regs at signal  */
+#endif
 
 extern char **__io_get_argv();
 static char ** saved_argv = NULL;
@@ -172,9 +179,11 @@ __abort_trace(int skip)
   char **strings;
   size_t i;
 
+#if defined(HAVE_GREGSET_T)
   if (regs != (gregset_t *)0) {
     dumpregs(regs);
   }
+#endif
 
   size = backtrace(array, MAXTRACE);
   if (skip + 1 >= size) {
@@ -201,7 +210,11 @@ __abort_trace(int skip)
  */
 
 static void
+#if defined(HAVE_GREGSET_T)
 __abort_sig_hand(int sig, siginfo_t *in, ucontext_t *u)
+#else
+__abort_sig_hand(int sig, siginfo_t *in, void *u)
+#endif
 {
   char *p;
   char b[128];
