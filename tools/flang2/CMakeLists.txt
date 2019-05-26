@@ -23,12 +23,6 @@ set(FLANG2_INCLUDE_DIR    ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 include_directories(${FLANG2_INCLUDE_DIR})
 
-if( ${TARGET_OS} STREQUAL "Linux" )
-  if( ${TARGET_ARCHITECTURE} STREQUAL "x86_64" )
-    set(LINUX86 ON)
-  endif()
-endif()
-
 if( ${TARGET_ARCHITECTURE} STREQUAL "x86_64" )
   set(X86_64 ON)
 endif()
