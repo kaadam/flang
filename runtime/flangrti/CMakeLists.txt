@@ -1,3 +1,4 @@
+
 #
 # Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 # See https://llvm.org/LICENSE.txt for license information.
@@ -81,7 +82,7 @@ add_flang_library(flangrti_shared
 
 # Resolve symbols against libm
 if (NOT MSVC)
-  target_link_libraries(flangrti_shared PUBLIC m)
+  target_link_libraries(flangrti_shared m)
 endif()
 
 
@@ -91,14 +92,14 @@ if (NOT DEFINED LIBOMP_EXPORT_DIR)
     FLANG_LIBOMP
     NAMES omp libomp
     HINTS ${CMAKE_BINARY_DIR}/lib)
-  target_link_libraries(flangrti_shared PUBLIC ${FLANG_LIBOMP})
+  target_link_libraries(flangrti_shared ${FLANG_LIBOMP})
 endif()
 
 find_library( 
   LIBPGMATH
   NAMES pgmath libpgmath
   HINTS ${CMAKE_BINARY_DIR}/lib)
-target_link_libraries(flangrti_shared PUBLIC ${LIBPGMATH})
+target_link_libraries(flangrti_shared ${LIBPGMATH})
 
 if( ${TARGET_ARCHITECTURE} STREQUAL "aarch64" )
   target_compile_definitions(flangrti_static PRIVATE TARGET_LINUX_ARM)

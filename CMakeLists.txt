@@ -11,11 +11,9 @@ cmake_minimum_required(VERSION 2.8)
 SET(CMAKE_Fortran_COMPILER_WORKS 1)
 SET(CMAKE_Fortran_ABI_COMPILED 0)
 SET(CMAKE_Fortran_COMPILER_SUPPORTS_F90 1)
-SET(CMAKE_Fortran_PREPROCESS_SOURCE
-    "<CMAKE_Fortran_COMPILER> -cpp <DEFINES> <INCLUDES> <FLAGS> -E <SOURCE> -o <PREPROCESSED_SOURCE>")
 SET(CMAKE_Fortran_MODDIR_FLAG "-module ")
 
-# If we are not building as a part of LLVM, build Flang as an
+# If we are not building as a part of LLVM, build Flang as a
 # standalone project, using LLVM as an external library:
 if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
   project(Flang)
@@ -30,15 +28,12 @@ if( ${TARGET_OS} STREQUAL "Linux" )
   if( ${TARGET_ARCHITECTURE} STREQUAL "x86_64" )
     set(ARCHNAME x86-64)
     set(ARCH X86)
-    set(WRDSZ 64)
   elseif( ${TARGET_ARCHITECTURE} STREQUAL "aarch64" )
     set(ARCHNAME aarch64)
     set(ARCH ARM)
-    set(WRDSZ 64)
   elseif( ${TARGET_ARCHITECTURE} STREQUAL "ppc64le" )
     set(ARCHNAME ppc64le)
     set(ARCH POWER)
-    set(WRDSZ 64)
   else()
     message("Unsupported architecture: ${TARGET_ARCHITECTURE}" )
     return()
@@ -47,6 +42,8 @@ else()
   message("Unsupported OS: ${TARGET_OS}" )
   return()
 endif()
+
+math(EXPR WRDSZ "${CMAKE_SIZEOF_VOID_P} * 8")
 
 # If we are not building as a part of LLVM, build Flang as an
 # standalone project, using LLVM as an external library:
