@@ -25,9 +25,12 @@ include_directories(${FLANG2_INCLUDE_DIR})
 
 if( ${TARGET_OS} STREQUAL "Linux" )
   if( ${TARGET_ARCHITECTURE} STREQUAL "x86_64" )
-    set(X86_64 ON)
     set(LINUX86 ON)
   endif()
+endif()
+
+if( ${TARGET_ARCHITECTURE} STREQUAL "x86_64" )
+  set(X86_64 ON)
 endif()
 
 option(FLANG_OPENMP_GPU_NVIDIA "Enable OpenMP Accelerator Offload." OFF)
