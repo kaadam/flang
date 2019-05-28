@@ -22,6 +22,10 @@ endif()
 set(TARGET_OS ${CMAKE_HOST_SYSTEM_NAME} CACHE STRING "Target OS")
 set(TARGET_ARCHITECTURE ${CMAKE_HOST_SYSTEM_PROCESSOR} CACHE STRING "Target Architecture")
 
+if (POLICY CMP0054)
+  cmake_policy(SET CMP0054 NEW)
+endif()
+
 if( ${TARGET_OS} STREQUAL "Linux" )
   set(OS "LINUX")
   set(OSNAME "Linux")

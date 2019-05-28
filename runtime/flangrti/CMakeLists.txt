@@ -82,7 +82,7 @@ add_flang_library(flangrti_shared
 
 # Resolve symbols against libm
 if (NOT MSVC)
-  target_link_libraries(flangrti_shared m)
+  target_link_libraries(flangrti_shared PRIVATE m)
 endif()
 
 
@@ -92,14 +92,14 @@ if (NOT DEFINED LIBOMP_EXPORT_DIR)
     FLANG_LIBOMP
     NAMES omp libomp
     HINTS ${CMAKE_BINARY_DIR}/lib)
-  target_link_libraries(flangrti_shared ${FLANG_LIBOMP})
+  target_link_libraries(flangrti_shared PRIVATE ${FLANG_LIBOMP})
 endif()
 
 find_library( 
   LIBPGMATH
   NAMES pgmath libpgmath
   HINTS ${CMAKE_BINARY_DIR}/lib)
-target_link_libraries(flangrti_shared ${LIBPGMATH})
+target_link_libraries(flangrti_shared PRIVATE ${LIBPGMATH})
 
 if( ${TARGET_ARCHITECTURE} STREQUAL "aarch64" )
   target_compile_definitions(flangrti_static PRIVATE TARGET_LINUX_ARM)

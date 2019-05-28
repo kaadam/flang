@@ -129,12 +129,13 @@ target_compile_options(flang2
   )
 
 target_link_libraries(flang2
+  PRIVATE
   flangArgParser
   scutil
   )
 
 if (NOT MSVC)
-  target_link_libraries(flang2 m)
+  target_link_libraries(flang2 PRIVATE m)
 endif()
 
 add_dependencies(flang2

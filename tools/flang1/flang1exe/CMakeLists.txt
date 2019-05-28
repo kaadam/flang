@@ -150,12 +150,13 @@ target_compile_options(flang1
   )
 
 target_link_libraries(flang1
+  PRIVATE
   flangArgParser
   scutil
   )
 
 if (NOT MSVC)
-  target_link_libraries(flang1 m)
+  target_link_libraries(flang1 PRIVATE m)
 endif()
 
 # Install flang1 executable
