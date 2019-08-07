@@ -217,7 +217,9 @@ char *fgets(char *, int, FILE *);
 FILE *fopen64(const char *, const char *);
 #endif
 FILE *fopen(const char *, const char *);
+#if !defined(TARGET_WIN)
 int fprintf(FILE *, const char *, ...);
+#endif
 #ifdef TARGET_WIN_X8664
 int __io_fputc(int, FILE *);
 #endif
