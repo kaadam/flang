@@ -12,8 +12,14 @@
 #include "fioMacros.h"
 #include "stdioInterf.h" /* stubbed version of stdio.h */
 #include "cnfg.h" /* declarations for configuration items */
+#include <stdio.h>
 
 #define GBL_SIZE_T_FORMAT "zu"
+
+#ifdef _WIN32
+#define INT64 __FLANG_INT64
+#define UINT64 __FLANG_UINT64
+#endif
 
 typedef int DBLINT64[2];
 typedef unsigned int DBLUINT64[2];
@@ -42,7 +48,10 @@ WIN_MSVCRT_IMP long WIN_CDECL strtol(const char *, char **, int);
 WIN_MSVCRT_IMP char *WIN_CDECL strerror(int);
 WIN_MSVCRT_IMP char *WIN_CDECL strstr(const char *, const char *);
 
-typedef __INT_T INT;       /* native integer at least 32 bits */
+// winnt.h typedef int INT
+#ifndef _WIN32
+typedef __INT_T INT;
+#endif       /* native integer at least 32 bits */
 typedef unsigned int UINT; /* unsigned 32 bit native integer */
 #define ISDIGIT(c) ((c) >= '0' && (c) <= '9')
 
@@ -317,7 +326,8 @@ typedef struct {
 #include <errno.h>
 
 extern FIO_TBL fioFcbTbls;
-#ifdef WINNT
+//#ifdef WINNT
+#if 0
 extern FIO_FCB *__get_fio_fcbs(void);
 #define GET_FIO_FCBS __get_fio_fcbs()
 #else

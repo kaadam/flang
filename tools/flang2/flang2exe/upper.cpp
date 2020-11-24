@@ -98,7 +98,7 @@ static void data_pop_const(void);
 static void data_push_const(void);
 static void read_global(void);
 static int read_CCFF(void);
-#include "direct.h"
+#include "flang_direct.h"
 static void read_contained(void);
 
 typedef struct CGR_LIST {
@@ -4477,9 +4477,9 @@ read_label(void)
 
 static VAR *dataivl;
 static VAR *lastivl;
-static CONST *dataict;
-static CONST *lastict;
-static CONST *outerict;
+static CONSTANT *dataict;
+static CONSTANT *lastict;
+static CONSTANT *outerict;
 
 static void
 data_add_ivl(VAR *ivl)
@@ -4506,7 +4506,7 @@ data_push_const(void)
 static void
 data_pop_const(void)
 {
-  CONST *save;
+  CONSTANT *save;
   for (lastict = outerict; lastict->next; lastict = lastict->next)
     ;
   /* unrotate: lastict->subc=>outerict=>dataict=>lastict->subc */
@@ -4517,7 +4517,7 @@ data_pop_const(void)
 } /* data_pop_const */
 
 static void
-data_add_const(CONST *ict)
+data_add_const(CONSTANT *ict)
 {
   ict->next = NULL;
   if (lastict) {
@@ -4978,7 +4978,7 @@ dataVariable(void)
 static void
 dataConstant(void)
 {
-  CONST *ict;
+  CONSTANT *ict;
 
   if (!checkname("Constant")) {
     fprintf(stderr, "ILM file line %d: Error in data Constant record\ngot %s\n",
@@ -4991,8 +4991,8 @@ dataConstant(void)
   switch (line[pos]) {
   case 'C':
     getval("CONSTANT");
-    ict = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(ict, CONST, 1);
+    ict = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(ict, CONSTANT, 1);
     ict->id = AC_CONST;
     ict->repeatc = getoperand("number", chnum);
     ict->dtype = getDtypeOperand("datatype", chdtype);
@@ -5022,8 +5022,8 @@ dataConstant(void)
     break;
   case 'L':
     getval("LITRLINT");
-    ict = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(ict, CONST, 1);
+    ict = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(ict, CONSTANT, 1);
     ict->id = AC_CONST;
     ict->u1.conval = getoperand("number", chnum);
     ict->dtype = DT_INT;
@@ -5031,8 +5031,8 @@ dataConstant(void)
     break;
   case 'I':
     getval("ID");
-    ict = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(ict, CONST, 1);
+    ict = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(ict, CONSTANT, 1);
     ict->id = AC_IDENT;
     ict->repeatc = getoperand("number", chnum);
     ict->dtype = getDtypeOperand("datatype", chdtype);
@@ -5045,8 +5045,8 @@ dataConstant(void)
     break;
   case 'D':
     getval("DO");
-    ict = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(ict, CONST, 1);
+    ict = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(ict, CONSTANT, 1);
     ict->id = AC_IDO;
     ict->u1.ido.index_var = getSptrOperand("do index var", chsym);
     ict->repeatc = 1;
@@ -5083,8 +5083,8 @@ dataConstant(void)
   case 'A':
     getval("ARRAY");
     in_array_ctor++;
-    ict = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(ict, CONST, 1);
+    ict = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(ict, CONSTANT, 1);
     ict->id = AC_ACONST;
     ict->sptr = getSptrOperand("symbol", chsym);
     ict->dtype = getDtypeOperand("datatype", chdtype);
@@ -5105,8 +5105,8 @@ dataConstant(void)
     break;
   case 'E':
     getval("EXPR");
-    ict = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(ict, CONST, 1);
+    ict = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(ict, CONSTANT, 1);
     ict->id = AC_IEXPR;
     ict->repeatc = getoperand("number", chnum);
     ict->u1.expr.op = getoperand("expression operator", chnum);
@@ -5163,7 +5163,7 @@ dataConstant(void)
 static void
 dataStructure(void)
 {
-  CONST *ict;
+  CONSTANT *ict;
   if (!checkname("structure")) {
     fprintf(stderr,
             "ILM file line %d: Error in data structure record\ngot %s\n",
@@ -5171,8 +5171,8 @@ dataStructure(void)
     ++errors;
     return;
   }
-  ict = (CONST *)getitem(4, sizeof(CONST));
-  BZERO(ict, CONST, 1);
+  ict = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+  BZERO(ict, CONSTANT, 1);
   ict->id = AC_SCONST;
   ict->repeatc = getoperand("number", chnum);
   ict->dtype = getDtypeOperand("datatype", chdtype);
@@ -5387,9 +5387,9 @@ put_prefix(FILE *dfile, char *str, int cnt)
 }
 
 void
-dmp_const(CONST *acl, int indent)
+dmp_const(CONSTANT *acl, int indent)
 {
-  CONST *c_aclp;
+  CONSTANT *c_aclp;
   char two_spaces[3] = "  ";
   FILE *dfile;
 

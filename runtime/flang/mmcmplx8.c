@@ -11,15 +11,27 @@
 #include "fioMacros.h"
 #include "complex.h"
 
+// TODO:
+// Windows does not recognize the "_Complex" keyword for complex types but does
+// know about the "_Fcomplex" (float) and "_Dcomplex" (double) types.
+// With clang it could be workarounded (by using builtin extension), but it needs to handle complex math function, which 
+// are expecting _Fcomplex or _Dcomplex type. Maybe we sould use a common type as it is in libpgmath /mthdecls.h/.
+typedef float _Complex cplx;
+/*
+#ifndef _WIN32
+typedef _Fcomplex cplx;
+#else
+#endif
+*/
 #define SMALL_ROWSA 10
 #define SMALL_ROWSB 10
 #define SMALL_COLSB 10
-
+#ifndef _WIN32
 void ENTF90(MMUL_CMPLX8,
             mmul_cmplx8)(int ta, int tb, __POINT_T mra, __POINT_T ncb,
-                         __POINT_T kab, float complex *alpha, float complex a[],
-                         __POINT_T lda, float complex b[], __POINT_T ldb,
-                         float complex *beta, float complex c[], __POINT_T ldc)
+                         __POINT_T kab, cplx *alpha, cplx a[],
+                         __POINT_T lda, cplx b[], __POINT_T ldb,
+                         cplx *beta, cplx c[], __POINT_T ldc)
 {
   /*
    *   Notes on parameters
@@ -55,13 +67,13 @@ void ENTF90(MMUL_CMPLX8,
   int bufr, bufc, loc, lor;
   int small_size = SMALL_ROWSA * SMALL_ROWSB * SMALL_COLSB;
   int tindex = 0;
-  float complex buffera[SMALL_ROWSA * SMALL_ROWSB];
-  float complex bufferb[SMALL_COLSB * SMALL_ROWSB];
-  float complex temp;
+  cplx buffera[SMALL_ROWSA * SMALL_ROWSB];
+  cplx bufferb[SMALL_COLSB * SMALL_ROWSB];
+  cplx temp;
   void ftn_mvmul_cmplx8_(), ftn_vmmul_cmplx8_();
   void ftn_mnaxnb_cmplx8_(), ftn_mnaxtb_cmplx8_();
   void ftn_mtaxnb_cmplx8_(), ftn_mtaxtb_cmplx8_();
-  float complex calpha, cbeta;
+  cplx calpha, cbeta;
   /*
    * Small matrix multiply variables
    */
@@ -544,6 +556,6 @@ void ENTF90(MMUL_CMPLX8,
                            beta, c, &ldc);
     }
   }
-
 }
-
+#else
+#endif

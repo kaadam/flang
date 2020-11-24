@@ -37,7 +37,10 @@ elseif( ${TARGET_ARCHITECTURE} STREQUAL "ppc64le" )
   )
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/libpgmath/lib/common
+)
 
 add_subdirectory(ompstub)
 

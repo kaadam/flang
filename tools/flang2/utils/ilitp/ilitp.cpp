@@ -70,7 +70,10 @@ static void do_CG_line(void);
 static void do_latency(const char *lat, int shift);
 static void do_SI_line(void);
 static int lookup_ili(const char *name);
-static void error(const char *text, const char *additional_text=nullptr);
+// TODO: This function will call NroffInStream::printError
+// On Windows xstring complains about if we wants to put null_ptr to out stream.
+// it causes 'access violation' error
+static void error(const char *text, const char *additional_text = "");
 
 #define STASH(string) strcpy((char*)malloc(strlen(string) + 1), string)
 

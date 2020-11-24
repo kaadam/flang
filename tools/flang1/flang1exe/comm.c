@@ -26,7 +26,7 @@
 #include "commopt.h"
 #include "ccffinfo.h"
 #include "dinit.h"
-#include "direct.h"
+#include "flang_direct.h""
 #include "rte.h"
 #include "rtlRtns.h"
 

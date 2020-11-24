@@ -16,7 +16,7 @@
 #include "symtab.h"
 #include <stdio.h>
 
-struct CONST;
+struct CONSTANT;
 struct VAR;
 
 typedef struct DREC {/* dinit file record */
@@ -74,12 +74,12 @@ int mk_unop(int optype, int lop, DTYPE dtype);
 /**
    \brief ...
  */
-void dinit(struct VAR *ivl, struct CONST *ict);
+void dinit(struct VAR *ivl, struct CONSTANT *ict);
 
 /**
    \brief ...
  */
-void dmp_ict(struct CONST *ict, FILE *f);
+void dmp_ict(struct CONSTANT *ict, FILE *f);
 
 /**
    \brief ...

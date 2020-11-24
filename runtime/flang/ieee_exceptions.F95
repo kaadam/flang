@@ -134,39 +134,39 @@ module IEEE_EXCEPTIONS
   !--------------------
   interface
     pure integer function __fenv_fegetexceptflag(flagp, exc) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int)        :: flagp
       integer(c_int), value :: exc
     end function __fenv_fegetexceptflag
 
     pure integer function __fenv_fesetexceptflag(flagp, exc) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int)        :: flagp
       integer(c_int), value :: exc
     end function __fenv_fesetexceptflag
 
     pure integer function __fenv_fetestexcept(exc) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int), value :: exc
     end function __fenv_fetestexcept
 
     pure integer function __fenv_feclearexcept(exc) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int), value :: exc
     end function __fenv_feclearexcept
 
     pure integer function __fenv_feraiseexcept(exc) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int), value :: exc
     end function __fenv_feraiseexcept
 
     pure integer function __fenv_feenableexcept(exc) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int), value :: exc
     end function __fenv_feenableexcept
 
     pure integer function __fenv_fedisableexcept(exc) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int), value :: exc
     end function __fenv_fedisableexcept
 

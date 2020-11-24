@@ -245,7 +245,7 @@ void cuda_emu_start(void);
 /**
    \brief ...
  */
-void dmp_const(CONST *acl, int indent);
+void dmp_const(CONSTANT *acl, int indent);
 
 /**
    \brief ...

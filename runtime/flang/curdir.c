@@ -6,8 +6,13 @@
  */
 
 #include <sys/types.h>
+#ifndef _WIN32
 #include <sys/param.h>
 #include <sys/utsname.h>
+#else
+#include <direct.h>
+#include <windows.h>
+#endif
 #include <stdlib.h>
 #include "stdioInterf.h"
 #include "fioMacros.h"
@@ -16,7 +21,7 @@
 #define MAXPATHLEN 1024
 #endif
 
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 #define getcwd _getcwd
 #endif
 
@@ -87,7 +92,8 @@ void __fort_getdir(curdir) char *curdir;
 }
 
 /* get current hostname */
-
+//TODO: Refactor this
+#ifndef _WIN32
 void __fort_gethostname(host) char *host;
 {
   struct utsname un;
@@ -104,3 +110,26 @@ void __fort_gethostname(host) char *host;
   }
   strcpy(host, p);
 }
+#else
+void __fort_gethostname(host) char *host;
+{
+  char *p;
+  int s;
+
+  p = __fort_getopt("-curhost");
+  if (p == NULL) {
+    wchar_t buffer[MAX_PATH] = {0};
+    DWORD size = MAX_PATH;
+    
+    if (!GetComputerNameEx(ComputerNameDnsFullyQualified, buffer, &size)) {
+      s = -1;
+    }
+    if (s == -1) {
+      __fort_abortp("uname");
+    }
+    p = (char *)malloc( MAX_PATH );
+    wcstombs(p, &buffer, MAX_PATH);
+  }
+  strcpy(host, p);
+}
+#endif

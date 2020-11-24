@@ -108,9 +108,11 @@ set(INCLUDE_DIRS
   ${TOOLS_SHARED_DIR}
   )
 
-set(COMPILE_OPTS
+if (NOT MSVC)
+set (COMPILE_OPTS
   -std=c11
-  )
+    )
+endif()
 
 add_flang_executable(flang1
   ${SOURCES} ${SHARED_SOURCES}
@@ -155,7 +157,7 @@ target_link_libraries(flang1
   scutil
   )
 
-if (NOT MSVC)
+if (NOT WIN32)
   target_link_libraries(flang1 PRIVATE m)
 endif()
 

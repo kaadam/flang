@@ -202,7 +202,8 @@ addili(ILI *ilip)
     break;
   case ILTY_PROC:
 #if defined(TARGET_WIN_X8664)
-    insert_argrsrv(ilip);
+    // TODO: Needs to fix this
+    //insert_argrsrv(ilip);
 #endif
     if (opc == IL_QJSR && share_qjsr_ili) {
       /*

@@ -39,11 +39,16 @@ std::list<std::string> includePaths;
 inline bool
 isPathSeparator(char c)
 {
-#ifdef __WIN
+#ifdef _WIN32
   return  c=='\\' || c =='/'? true: false;
 #else
   return c =='/'? true: false;
 #endif
+}
+
+bool findPathSeparator(char *sep)
+{
+
 }
 
 /**
@@ -433,7 +438,12 @@ collectIncludePaths(int argc, char *argv[])
 {
   for (int i = 1; i < argc; i++ ) {
     if( strncmp(argv[i], "-I", 2) == 0 ) {
+#ifndef _WIN32
       char *cp = argv[i]+2;
+#else
+      //TODO: On Windows full path conatins a volume or a drive letter and volume separator (:) before the path separator
+      char *cp = argv[i]+4;
+#endif
       while (*cp && isspace(*cp)) {
         cp++;
       }

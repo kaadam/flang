@@ -60,7 +60,7 @@
  *  automatically generated name.
  */
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(_WIN32)
 #include <BaseTsd.h>
 typedef SSIZE_T ssize_t;
 #endif

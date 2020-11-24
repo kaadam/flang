@@ -10,6 +10,18 @@
    \brief Main module to generate LLVM debug informations using metadata
  */
 
+#if !defined(_WIN32)
+#include <unistd.h>
+#else
+#include <direct.h>
+#endif
+
+#if !defined(PATH_MAX)
+#include <windows.h>
+#define PATH_MAX MAX_PATH
+#endif
+
+
 #include "lldebug.h"
 #include "dtypeutl.h"
 #include "global.h"
@@ -29,11 +41,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifndef HOST_WIN
-#include <unistd.h>
-#endif
 
 #include "upper.h"
+
+
 
 #ifdef __cplusplus
 /* clang-format off */
@@ -1545,7 +1556,11 @@ static char *
 get_currentdir(void)
 {
   char *cwd = (char *)malloc(PATH_MAX);
+#if defined (_WIN32)
+  _getcwd(cwd, PATH_MAX);
+#else
   getcwd(cwd, PATH_MAX);
+#endif
   return cwd;
 }
 

@@ -9,8 +9,14 @@
 
 #include <stdio.h>  /* TODO: try moving to  pgstdio.h */
 #include <string.h>
-#include <unistd.h>
+
 #include <stdlib.h>
+
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 /* defines to use real host stdio routines */
 

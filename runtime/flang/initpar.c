@@ -15,7 +15,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <memory.h>
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
 
 #include "global.h"
 /* FIXME: HACK
@@ -34,7 +36,7 @@
 
 #if   defined(TARGET_OSX)
 #include <crt_externs.h>
-#elif defined(__win32)
+#elif defined(_WIN32)
 /* OPENTOOLS14 has changed the name.  wrap _environ for all of windowws */
 char **__io_environ();
 #else
@@ -66,7 +68,7 @@ static struct {
 /* common blocks containing values for inlined number_of_processors()
    and my_processor() functions */
 
-#if defined(WIN64) || defined(WIN32)
+#if defined(_WIN64) || defined(_WIN32)
 WIN_IMP __INT_T ENTCOMN(NP, np)[];
 WIN_IMP __INT_T ENTCOMN(ME, me)[];
 #elif defined(C90) || defined(WINNT)
@@ -77,7 +79,7 @@ extern __INT_T ENTCOMN(NP, np)[];
 extern __INT_T ENTCOMN(ME, me)[];
 #endif
 
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 #define write _write
 #endif
 
@@ -98,7 +100,7 @@ __fort_ncpus()
 }
 
 #if defined(WINNT)
-#if !defined(WIN64) && !defined(WIN32)
+#if !defined(_WIN64) && !defined(_WIN32)
 __INT_T *CORMEM;
 
 /* special argument pointer access routines */
@@ -789,7 +791,9 @@ term()
 
 void ENTFTN(INIT, init)(__INT_T *n)
 {
-  __fort_setarg();      /* set __argv_save and __argc_save (maybe) */
+  #ifndef _WIN32
+  __fort_setarg();
+  #endif      /* set __argv_save and __argc_save (maybe) */
   if (!inited.consts) {
     __fort_init_consts(); /* constants need initialization */
     inited.consts = 1;

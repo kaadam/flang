@@ -9,6 +9,9 @@
  * \brief Fill in statistics structure (Linux version)
  */
 
+//TODO: Should we support this for Windows?
+#ifndef _WIN32
+
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/utsname.h>
@@ -116,3 +119,5 @@ __fort_set_second(double d)
 {
   first = d;
 }
+
+#endif

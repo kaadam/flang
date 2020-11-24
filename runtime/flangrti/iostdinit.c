@@ -6,7 +6,7 @@
  */
 
 #include <stdio.h>
-#if !defined(WINNT) && !defined(ST100)
+#if !defined(WINNT) && !defined(ST100) && !defined(_WIN32)
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
@@ -15,7 +15,7 @@
 
 /* get environ */
 
-#if defined(WIN64)
+#if defined(WIN64) || defined(_WIN32)
 char * * * __cdecl __p__environ(void);
 /*
  * enclose _fileno within parens to ensure calling the function rather than
@@ -24,7 +24,7 @@ char * * * __cdecl __p__environ(void);
 #define fileno(x) (_fileno)(x)
 #endif
 
-#if   defined(WINNT)
+#if   defined(WINNT) || defined(_WIN32)
 #include <stdlib.h>
 extern char **environ;
 #elif defined(TARGET_OSX)
@@ -153,7 +153,11 @@ __io_ferror(void *p)
 int
 __io_getfd(void *fp)
 {
+#if defined(_WIN32)
+  return _fileno(fp);
+#else
   return (((FILE *)fp)->_fileno);
+#endif
 }
 
 /* is a tty? */
@@ -214,7 +218,7 @@ __io_setmode_binary(void *fp)
 int
 __io_ispipe(void *f)
 {
-#if !defined(WINNT) && !defined(ST100)
+#if !defined(WINNT) && !defined(ST100) && !defined(_WIN32)
   struct stat st;
 
   fstat(fileno((FILE *)f), &st);
@@ -272,14 +276,14 @@ __io_timezone(void *tm)
 {
 #if defined(SUN4) || defined(PPC) || defined(OSX86)
   return ((struct tm *)tm)->tm_gmtoff;
-#elif defined(WINNT) || defined(WIN64) || defined(WIN32)
+#elif defined(WINNT) || defined(_WIN64) || defined(_WIN32)
   return (0);
 #else
   return -(timezone - (((struct tm *)tm)->tm_isdst ? 3600 : 0));
 #endif
 }
 
-#if  (defined(WIN32) || defined(WIN64))
+#if  (defined(_WIN32) || defined(_WIN64))
 /* wrappers for stderr, stdin, stdout : include
   pgc/port/pgi_iobuf.h after stdio.h 
  */

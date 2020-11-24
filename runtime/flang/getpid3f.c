@@ -10,6 +10,13 @@
 /*	getpid3f.c - Implements LIB3F getpid subprogram.  */
 
 #include "ent3f.h"
+
+#ifndef _WIN32
 #include <unistd.h>
+#define GETPID getpid
+#else
+#include <process.h>
+#define GETPID _getpid
+#endif
 
 int ENT3F(GETPID, getpid)() { return getpid(); }

@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
  *
  */
-
-#ifndef DIRECT_H_
-#define DIRECT_H_
+// TODO: Rename direct.h since its name conflicts with Windows system header name?
+#ifndef FLANG_DIRECT_H_
+#define FLANG_DIRECT_H_
 
 /**
    \file
@@ -75,7 +75,7 @@ typedef struct {
   /* NOTES:
    * 1.  all members must be int
    * 2.  any additions/modifications imply load_dirset() and store_dirset()
-   *     in direct.c, and set_flg() in pragma.c, must be modified.
+   *     in flang_direct, and set_flg() in pragma.c, must be modified.
    * 3.  set_flg() cares about the order in which the members occur.
    * 4.  the member x must be the last member in this structure.
    *     DIRSET_XFLAG is x's offset (in units of ints) from the beginning

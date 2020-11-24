@@ -10,6 +10,8 @@
 /** \file
   * \brief Implements LIB3F abort subprogram.  */
 
+#ifndef WINNT
+
 /* must include ent3f.h AFTER io3f.h */
 #include "io3f.h"
 #include "ent3f.h"
@@ -25,3 +27,5 @@ void ENT3F(ABORT, abort)()
   }
   abort();
 }
+
+#endif

@@ -20,15 +20,24 @@ extern "C" {
 
 typedef int INT;	/* native integer at least 32 bits */
 typedef unsigned UINT;	/* unsigned 32 bit native integer */
+//TODO: winnt.h -> cannot combine this with 'define VOID void'
+#ifndef _WIN32
 typedef void VOID;
-
+#endif
 /* BIGINT is a mess.  It's defined as INT on many 32-bit targets,
  * despite comments that read "native integer at least 64 bits"
  * (as if things would still work if 128-bit integers were used).
  * Defining it as int64_t seems like a good idea but it leads to warnings
  * in nonportable code that really expects long.
  */
-typedef long BIGINT;		/* native integer "at least 64 bits" */
+ //TODO: only 64bit Windows uses the LLP64 data model where long is still 32bit.
+ // casuses assertion in falng/tools/flang1/flang1exe/symacc.c:43
+ // 'bad SYM size 40', it should be 44
+ #if defined (_WIN64)
+typedef int64_t BIGINT;		/* native integer "at least 64 bits" */
+#else
+typedef long BIGINT;
+#endif
 typedef unsigned long BIGUINT;	/* native unsigned integer "at least 64 bits" */
 
 typedef int64_t BIGINT64;	/* 64-bit native integer */

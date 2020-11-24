@@ -25,7 +25,7 @@
 
 /* special argument pointers */
 
-#if defined(TARGET_WIN) || defined(WIN64) || defined(WIN32)
+#if defined(TARGET_WIN) || defined(WIN64) || defined(_WIN32)
 WIN_IMP __INT_T ENTCOMN(0, 0)[4];
 WIN_IMP __STR_T ENTCOMN(0C, 0c)[1];
 #elif defined(WINNT)
@@ -78,7 +78,7 @@ extern __STR_T ENTCOMN(0C, 0c)[];
 
 /* local mode flag declaration and test macro */
 
-#if defined(TARGET_WIN) || defined(WIN64) || defined(WIN32)
+#if defined(TARGET_WIN) || defined(WIN64) || defined(_WIN32)
 WIN_IMP __INT_T ENTCOMN(LOCAL_MODE, local_mode)[1];
 #elif defined(WINNT) || defined(C90)
 __INT_T ENTCOMN(LOCAL_MODE, local_mode)[1];
@@ -540,7 +540,7 @@ extern int __fort_entry_mflag;
 #define __CORMEM_M1 0x58ad5e3
 #define __CORMEM_M2 0x61f072b
 
-#if   defined(TARGET_WIN) || defined(WIN64) || defined(WIN32)
+#if   defined(TARGET_WIN) || defined(WIN64) || defined(_WIN32)
 WIN_IMP __INT_T *CORMEM;
 #elif defined(WINNT)
 extern __INT_T *CORMEM;
@@ -556,7 +556,7 @@ extern __INT_T CORMEM[];
 #define NPLIMIT 0
 #endif /* NPLIMIT */
 
-#if defined(TARGET_WIN) || defined(WIN64) || defined(WIN32)
+#if defined(TARGET_WIN) || defined(WIN64) || defined(_WIN32)
 void __CORMEM_SCAN(void);
 #else
 #define __CORMEM_SCAN()                                                        \

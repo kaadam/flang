@@ -26,6 +26,11 @@ configure_lit_site_cfg(
 #  ${CMAKE_CURRENT_BINARY_DIR}/Unit/lit.site.cfg
 #  )
 
+option(FLANG_TEST_VERBOSE_MODE "Run Flang tests in verbose mode" ON)
+if(FLANG_TEST_VERBOSE_MODE)
+  set(FLANG_TEST_EXTRA_ARGS ${FLANG_TEST_EXTRA_ARGS} "-vv --debug")
+endif ()
+
 option(FLANG_TEST_USE_VG "Run Flang tests under Valgrind" OFF)
 if(FLANG_TEST_USE_VG)
   set(FLANG_TEST_EXTRA_ARGS ${FLANG_TEST_EXTRA_ARGS} "--vg")

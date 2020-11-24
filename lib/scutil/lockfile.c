@@ -33,7 +33,11 @@
  *	Clean up by deleting the uniquely named file we had created earlier.
  */
 
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#define pid_t int
+#endif
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -63,7 +67,11 @@ __pg_make_lock_file(char *dir)
   FILE *F;
   udir = (char *)malloc(strlen(dir) + 1);
   strcpy(udir, dir);
+#ifndef _WIN32
   pid = getpid();
+#else
+  pid = _getpid();
+#endif
   r = gethostname(hostname, 998);
   if (r != 0) {
     fprintf(stderr, "gethostname fails\n");

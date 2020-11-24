@@ -11,9 +11,9 @@
  *
  */
 
-#define _GNU_SOURCE // for vasprintf()
+//#define _GNU_SOURCE // for vasprintf()
 #include <stdio.h>
-#undef _GNU_SOURCE
+//#undef _GNU_SOURCE
 #include "kmpcutil.h"
 #include "error.h"
 #include "semant.h"
@@ -33,7 +33,9 @@
 #endif
 #include "cgllvm.h"
 #include "cgmain.h"
+#if !defined(_WIN32)
 #include <unistd.h>
+#endif
 #include "regutil.h"
 #include "dtypeutl.h"
 #include "llassem.h"
@@ -526,8 +528,15 @@ build_kmpc_api_name(int kmpc_api, va_list va)
     char *nm, *res;
 
     /* Construct the name */
+#ifndef _WIN32    
     vasprintf(&nm, KMPC_NAME(kmpc_api), va);
-
+#else
+    int len = _vscprintf(KMPC_NAME(kmpc_api), va);
+    size_t size = (size_t)len + 1;
+    nm = (char*)malloc(size);
+    // _vsprintf_s is the "secure" version of vsprintf
+    vsprintf_s(nm, len + 1, KMPC_NAME(kmpc_api), va);
+#endif
     /* If the name has already been allocated, use that to save memory */
     if (hashmap_lookup(names, (hash_key_t)nm, (hash_data_t *)&res)) {
       free(nm);

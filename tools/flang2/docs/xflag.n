@@ -2658,7 +2658,7 @@ reserved
 NN indicates the memory latency in cycles for the ST100.
 Default is 6 on ST100.
 .XB 0x100000
-This is used in direct.c to imply that the mode flags flg.x[87] & 0xff
+This is used in flang_direct.c to imply that the mode flags flg.x[87] & 0xff
 should be inherited; that is, not changed.
 Generally this is set for loop directives, not set for global/routine directives
 

@@ -14,6 +14,8 @@ extern long __fort_getoptn();
 
 /* handler for bus error */
 
+#ifndef _WIN32
+
 static void sighand(s) int s;
 {
   int lcpu;
@@ -40,3 +42,5 @@ int val;
   }
   signal(SIGBUS, save);
 }
+
+#endif

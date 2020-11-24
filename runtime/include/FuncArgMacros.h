@@ -18,7 +18,7 @@
 #define _PGHPFENT_H_
 
 /* Alternate Fortran entry symbol formats */
-#if defined(WIN64)
+#if !defined(_WIN64)
 #if defined(DESC_I8)
 #define ENTF90IO(UC, LC) pgf90io_##LC##_i8
 #define ENTF90(UC, LC) pgf90_##LC##_i8
@@ -45,7 +45,7 @@
 #define ENTCRFTN(UC, LC) pgcrhpf_##LC
 #define ENTCOMN(UC, LC) pghpf_##LC##_
 
-#elif defined(WIN32)
+#elif !defined(_WIN32)
 #define ENTF90(UC, LC) pgf90_##LC
 #define ENTF90IO(UC, LC) pgf90io_##LC
 #define ENTFTN(UC, LC) pghpf_##LC
@@ -59,7 +59,7 @@
 #define F90_MATMUL(s) pg_mm_##s##_
 #define F90_NORM2(s) pg_norm2_##s##_
 
-#elif defined(WINNT)
+#elif !defined(WINNT)
 #define ENTF90(UC, LC) pgf90_##LC
 #define ENTF90IO(UC, LC) pgf90io_##LC
 #define ENTFTN(UC, LC) pghpf_##LC
@@ -128,7 +128,9 @@
 #define CLEN(ARG) (ARG##_len)
 
 /* #if defined(WIN64) || defined(WIN32) */
-#if defined(PGDLL) && defined(_DLL) &&                                         (defined(TARGET_WIN) || defined(WIN64) || defined(WIN32))
+// TODO: There is no PGDLL on Windows
+// #if defined(_DLL) && (defined(TARGET_WIN) || defined(WIN64) || defined(WIN32))
+#if defined(PGDLL) && defined(_DLL) && (defined(TARGET_WIN) || defined(WIN64) || defined(WIN32))
 #define WIN_EXP __declspec(dllexport)
 #define WIN_IMP extern __declspec(dllimport)
 #else

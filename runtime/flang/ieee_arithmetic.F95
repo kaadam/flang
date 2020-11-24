@@ -11,9 +11,8 @@
 #endif
 
 module IEEE_ARITHMETIC
-
   use ieee_exceptions
-  use, intrinsic :: iso_c_binding
+  use iso_c_binding
 #ifdef PGDLL
 !DEC$ ATTRIBUTES DLLEXPORT :: IEEE_ARITHMETIC
 #endif
@@ -212,26 +211,26 @@ module IEEE_ARITHMETIC
   !--------------------
   interface
     function __fenv_fegetround() bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int) :: __fenv_fegetround
     end function __fenv_fegetround
   end interface
   interface
     function __fenv_fesetround(rounds) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int), value :: rounds
       integer(c_int) :: __fenv_fesetround
     end function __fenv_fesetround
   end interface
   interface
     function __fenv_fegetzerodenorm() bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int) :: __fenv_fegetzerodenorm
     end function __fenv_fegetzerodenorm
   end interface
   interface
     function __fenv_fesetzerodenorm(uflow) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       integer(c_int), value :: uflow
       integer(c_int) :: __fenv_fesetzerodenorm
     end function __fenv_fesetzerodenorm
@@ -239,14 +238,14 @@ module IEEE_ARITHMETIC
 
   interface
     pure function __nearbyint(x) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       real(c_double), value :: x
       real(c_double) :: __nearbyint
     end function __nearbyint
   end interface
   interface
     pure function __nearbyintf(x) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       real(c_float), value :: x
       real(c_float) :: __nearbyintf
     end function __nearbyintf
@@ -254,14 +253,14 @@ module IEEE_ARITHMETIC
 
   interface
     pure function __remainder(x, y) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       real(c_double), value :: x, y
       real(c_double) :: __remainder
     end function __remainder
   end interface
   interface
     pure function __remainderf(x, y) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       real(c_float), value :: x, y
       real(c_float) :: __remainderf
     end function __remainderf
@@ -269,14 +268,14 @@ module IEEE_ARITHMETIC
 
   interface
     pure function __nextafter(x, y) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       real(c_double), value :: x, y
       real(c_double) :: __nextafter
     end function __nextafter
   end interface
   interface
     pure function __nextafterf(x, y) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       real(c_float), value :: x, y
       real(c_float) :: __nextafterf
     end function __nextafterf
@@ -284,7 +283,7 @@ module IEEE_ARITHMETIC
 
   interface
     pure function __scalbn(x, i) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       real(c_double), value :: x
       integer(c_int), value :: i
       real(c_double) :: __scalbn
@@ -292,7 +291,7 @@ module IEEE_ARITHMETIC
   end interface
   interface
     pure function __scalbnf(x, i) bind(c)
-      use, intrinsic :: iso_c_binding
+      use iso_c_binding
       real(c_float), value :: x
       integer(c_int), value :: i
       real(c_float) :: __scalbnf

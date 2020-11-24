@@ -9,7 +9,21 @@
 
 #include "stdioInterf.h"
 #include "fioMacros.h"
-#include "complex.h"
+#include <complex.h>
+
+typedef float _Complex cplx;
+
+// Windows compiler does not recognize the "_Complex" keyword for complex types but does
+// know about the "_Fcomplex" (float) and "_Dcomplex" (double) types.
+// With clang it could be workarounded, but it needs to handle complex math function, which 
+// are expecting _Fcomplex or _Dcomplex type. Maybe we sould use a common type as it is in libpgmath /mthdecls.h/.
+#ifdef _WIN32
+//typedef _Fcomplex cplx;
+//
+#define TOWIN(r, i) {}
+#define FROMWIN(re, im) CMPLX(re, im)
+#else
+#endif
 
 #define SMALL_ROWSA 10
 #define SMALL_ROWSB 10
@@ -17,10 +31,10 @@
 
 void ENTF90(MMUL_CMPLX16,
             mmul_cmplx16)(int ta, int tb, __POINT_T mra, __POINT_T ncb,
-                          __POINT_T kab, double complex *alpha,
-                          double complex a[], __POINT_T lda, double complex b[],
-                          __POINT_T ldb, double complex *beta,
-                          double complex c[], __POINT_T ldc)
+                          __POINT_T kab, cplx *alpha,
+                          cplx a[], __POINT_T lda, cplx b[],
+                          __POINT_T ldb, cplx *beta,
+                          cplx c[], __POINT_T ldc)
 {
   /*
    *   Notes on parameters
@@ -56,13 +70,13 @@ void ENTF90(MMUL_CMPLX16,
   int bufr, bufc, loc, lor;
   int small_size = SMALL_ROWSA * SMALL_ROWSB * SMALL_COLSB;
   int tindex = 0;
-  double complex buffera[SMALL_ROWSA * SMALL_ROWSB];
-  double complex bufferb[SMALL_COLSB * SMALL_ROWSB];
-  double complex temp;
+  cplx buffera[SMALL_ROWSA * SMALL_ROWSB];
+  cplx bufferb[SMALL_COLSB * SMALL_ROWSB];
+  cplx temp;
   void ftn_mvmul_cmplx16_(), ftn_vmmul_cmplx16_();
   void ftn_mnaxnb_cmplx16_(), ftn_mnaxtb_cmplx16_();
   void ftn_mtaxnb_cmplx16_(), ftn_mtaxtb_cmplx16_();
-  double complex calpha, cbeta;
+  cplx calpha, cbeta;
   /*
    * Small matrix multiply variables
    */
@@ -180,7 +194,14 @@ void ENTF90(MMUL_CMPLX16,
             indx = indx_strt;
             bndx = bstrt;
             for (i = 0; i < colsb; i++) {
+#ifndef _WIN32
               bufferb[indx] = conjf(b[bndx++]);
+#else
+              _Fcomplex z = {__builtin_creal(b[bndx]), __builtin_cimag(b[bndx])};
+              _Fcomplex temp = conjf(z); 
+              bufferb[indx] = FROMWIN(crealf(temp), cimagf(temp));
+               ++bndx;
+#endif
               //	      printf( "( %f, %f )\n", crealf( bufferb[indx] ),
               // cimagf( bufferb[indx] ) );
               indx += rowsb;
@@ -323,7 +344,14 @@ void ENTF90(MMUL_CMPLX16,
             indx = indx_strt;
             bndx = bstrt;
             for (i = 0; i < colsb; i++) {
+#ifndef _WIN32
               bufferb[indx] = calpha * conjf(b[bndx++]);
+#else
+              _Fcomplex z = {__builtin_creal(b[bndx]), __builtin_cimag(b[bndx])};
+              ++bndx;
+              _Fcomplex temp = conjf(z); 
+              bufferb[indx] = FROMWIN(crealf(temp), cimagf(temp));
+#endif
               //	      printf( "( %f, %f )\n", crealf( bufferb[indx] ),
               // cimagf( bufferb[indx] ) );
               indx += rowsb;
@@ -394,7 +422,13 @@ void ENTF90(MMUL_CMPLX16,
           andx = astrt;
           indx = 0;
           for (ja = 0; ja < colsa; ja++) {
+#ifndef _WIN32
             buffera[indx++] = calpha * a[andx];
+#else
+              _Fcomplex z = {__builtin_creal(a[andx]), __builtin_cimag(a[andx])};
+              _Fcomplex temp = conjf(z); 
+              bufferb[indx++] = calpha * FROMWIN(crealf(temp), cimagf(temp));
+#endif
             andx += lda;
           }
           astrt++;
@@ -448,7 +482,14 @@ void ENTF90(MMUL_CMPLX16,
             indx = indx_strt;
             bndx = bstrt;
             for (i = 0; i < colsb; i++) {
+#ifndef _WIN32
               bufferb[indx] = calpha * conjf(b[bndx++]);
+#else
+              _Fcomplex z = {__builtin_creal(b[bndx]), __builtin_cimag(b[bndx])};
+              ++bndx;
+              _Fcomplex temp = conjf(z); 
+              bufferb[indx] = calpha * FROMWIN(crealf(temp), cimagf(temp));
+#endif
               //	      printf( "( %f, %f )\n", crealf( bufferb[indx] ),
               // cimagf( bufferb[indx] ) );
               indx += rowsb;

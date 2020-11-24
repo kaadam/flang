@@ -13,6 +13,8 @@
 /* how do we do this for WINNT */
 #include "ent3f.h"
 
+#ifndef _WIN32
+
 #define _LIBC_LIMITS_H_
 #include <unistd.h>
 #include <sys/types.h>
@@ -38,3 +40,12 @@ float ENT3F(DTIME, dtime)(float *tarray)
   return (tarray[0] + tarray[1]);
 }
 
+#else
+float ENT3F(DTIME, dtime)(float *tarray)
+{
+  tarray[0] = 0;
+  tarray[1] = 0;
+  return (tarray[0] + tarray[1]);
+}
+
+#endif

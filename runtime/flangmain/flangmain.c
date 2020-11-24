@@ -17,6 +17,8 @@ extern char **__io_environ();
 extern void __io_set_argc(int);
 extern void __io_set_argv(char **);
 
+// TODO: PGDLL ?
+//#if defined(PGDLL) && defined(WINNT) && !defined(WIN64)
 #if defined(PGDLL) && defined(WINNT) && !defined(WIN64)
 struct {
   char *pghpf_01p;

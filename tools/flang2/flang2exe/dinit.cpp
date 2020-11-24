@@ -39,28 +39,28 @@ typedef struct {
 static EFFADR *mkeffadr(int);
 static ISZ_T eval(int);
 static char *acl_idname(int);
-static void dinit_subs(CONST *, SPTR, ISZ_T, SPTR);
+static void dinit_subs(CONSTANT *, SPTR, ISZ_T, SPTR);
 static void dinit_val(SPTR sptr, DTYPE dtypev, INT val);
 static ISZ_T get_ival(DTYPE, INT);
 static INT _fdiv(INT dividend, INT divisor);
 static void _ddiv(INT *dividend, INT *divisor, INT *quotient);
-static CONST *eval_init_expr_item(CONST *cur_e);
-static CONST *eval_array_constructor(CONST *e);
-static CONST *eval_init_expr(CONST *e);
-static CONST *eval_do(CONST *ido);
-static CONST *clone_init_const(CONST *original, int temp);
-static CONST *clone_init_const_list(CONST *original, int temp);
-static void add_to_list(CONST *val, CONST **root, CONST **tail);
-static void save_init(CONST *ict, SPTR sptr);
-static void df_dinit(VAR *, CONST *);
-static CONST *dinit_varref(VAR *ivl, SPTR member, CONST *ict, DTYPE dtype,
+static CONSTANT *eval_init_expr_item(CONSTANT *cur_e);
+static CONSTANT *eval_array_constructor(CONSTANT *e);
+static CONSTANT *eval_init_expr(CONSTANT *e);
+static CONSTANT *eval_do(CONSTANT *ido);
+static CONSTANT *clone_init_const(CONSTANT *original, int temp);
+static CONSTANT *clone_init_const_list(CONSTANT *original, int temp);
+static void add_to_list(CONSTANT *val, CONSTANT **root, CONSTANT **tail);
+static void save_init(CONSTANT *ict, SPTR sptr);
+static void df_dinit(VAR *, CONSTANT *);
+static CONSTANT *dinit_varref(VAR *ivl, SPTR member, CONSTANT *ict, DTYPE dtype,
                            int *struct_bytes_initd, ISZ_T *repeat,
                            ISZ_T base_off);
 
-static CONST **init_const; /* list of pointers to saved COSNT lists */
+static CONSTANT **init_const; /* list of pointers to saved COSNT lists */
 static int cur_init = 0;
 int init_list_count = 0; /* size of init_const */
-static CONST const_err;
+static CONSTANT const_err;
 
 #define CONST_ERR(dt) (const_err.dtype = dt, clone_init_const(&const_err, true))
 
@@ -94,7 +94,7 @@ static FILE *df; /* defer dinit until semfin */
  * (4, 5) need to stay around until semfin.
  */
 void
-dinit(VAR *ivl, CONST *ict)
+dinit(VAR *ivl, CONSTANT *ict)
 {
   int nw;
   char *ptr;
@@ -165,7 +165,7 @@ do_dinit(void)
    * saved by dinit(), and write dinit records for each record.
    */
   VAR *ivl;
-  CONST *ict;
+  CONSTANT *ict;
   char *ptr;
   int nw;
   int nilms;
@@ -178,8 +178,8 @@ do_dinit(void)
 #endif
 
   /* allocate the list of pointers to save initializer constant lists */
-  init_const = (CONST **)getitem(4, init_list_count * sizeof(CONST *));
-  BZERO(init_const, sizeof(CONST *), init_list_count);
+  init_const = (CONSTANT **)getitem(4, init_list_count * sizeof(CONSTANT *));
+  BZERO(init_const, sizeof(CONSTANT *), init_list_count);
 
   while (true) {
     nw = fread(&ptr, sizeof(ivl), 1, df);
@@ -193,7 +193,7 @@ do_dinit(void)
 #if DEBUG
     assert(nw == 1, "do_dinit: ivl error", nw, ERR_Fatal);
 #endif
-    ict = (CONST *)ptr;
+    ict = (CONSTANT *)ptr;
     nw = fread((char *)ilmb.ilm_base, sizeof(ILM_T), BOS_SIZE, df);
 #if DEBUG
     assert(nw == BOS_SIZE, "do_dinit: BOS error", nw, ERR_Fatal);
@@ -268,7 +268,7 @@ again:
  * \param dtype data type of structure type, if a struct init
  */
 static void
-dinit_data(VAR *ivl, CONST *ict, DTYPE dtype, ISZ_T base_off)
+dinit_data(VAR *ivl, CONSTANT *ict, DTYPE dtype, ISZ_T base_off)
 {
   SPTR member = SPTR_NULL;
   int struct_bytes_initd; /* use to determine fields in typedefs need
@@ -380,9 +380,9 @@ if (ict)   errsev(67);
  * \param ict pointer to initializer constant tree
  */
 static void
-df_dinit(VAR *ivl, CONST *ict)
+df_dinit(VAR *ivl, CONSTANT *ict)
 {
-  CONST *new_ict;
+  CONSTANT *new_ict;
 #if DEBUG
   if (DBGBIT(6, 3)) {
     fprintf(gbl.dbgfil, "\nDINIT CALLED ----------------\n");
@@ -467,8 +467,8 @@ is_zero(DTYPE dtype, INT conval)
   return false;
 }
 
-static CONST *
-dinit_varref(VAR *ivl, SPTR member, CONST *ict, DTYPE dtype,
+static CONSTANT *
+dinit_varref(VAR *ivl, SPTR member, CONSTANT *ict, DTYPE dtype,
              int *struct_bytes_initd, ISZ_T *repeat, ISZ_T base_off)
 {
   SPTR sptr;      /* containing object being initialized */
@@ -477,7 +477,7 @@ dinit_varref(VAR *ivl, SPTR member, CONST *ict, DTYPE dtype,
   bool new_block; /* flag to put out DINIT record */
   EFFADR *effadr; /* Effective address of array ref */
   bool zero;      /* is this put DINIT_ZEROES? */
-  CONST *saved_ict;
+  CONSTANT *saved_ict;
   bool put_value = true;
   int ilmptr;
 
@@ -673,7 +673,7 @@ error_exit:
    \param mbr_sptr sptr of member if processing typedef
  */
 static void
-dinit_subs(CONST *ict, SPTR base, ISZ_T boffset, SPTR mbr_sptr)
+dinit_subs(CONSTANT *ict, SPTR base, ISZ_T boffset, SPTR mbr_sptr)
 {
   ISZ_T loffset = 0; /*offset from begin of current structure */
   ISZ_T roffset = 0; /* offset from begin of member (based on repeat count) */
@@ -916,7 +916,7 @@ dmp_ivl(VAR *ivl, FILE *f)
 }
 
 void
-dmp_ict(CONST *ict, FILE *f)
+dmp_ict(CONSTANT *ict, FILE *f)
 {
   FILE *dfil;
   dfil = f ? f : stderr;
@@ -1864,14 +1864,14 @@ init_negate_const(INT conval, DTYPE dtype)
 }
 
 static struct {
-  CONST *root;
-  CONST *roottail;
-  CONST *arrbase;
+  CONSTANT *root;
+  CONSTANT *roottail;
+  CONSTANT *arrbase;
   int ndims;
   struct {
     DTYPE dtype;
     ISZ_T idx;
-    CONST *subscr_base;
+    CONSTANT *subscr_base;
     ISZ_T lowb;
     ISZ_T upb;
     ISZ_T stride;
@@ -1888,7 +1888,7 @@ eval_sub_index(int dim)
 {
   int repeatc;
   ISZ_T o_lowb, elem_offset;
-  CONST *subscr_base;
+  CONSTANT *subscr_base;
   ADSC *adsc = AD_DPTR(sb.sub[dim].dtype);
   o_lowb = ad_val_of(AD_LWBD(adsc, 0));
   subscr_base = sb.sub[dim].subscr_base;
@@ -1917,9 +1917,9 @@ eval_sb(int d)
   ISZ_T elem_offset;
   ISZ_T repeat;
   int t_ub = 0;
-  CONST *v;
-  CONST *c;
-  CONST tmp;
+  CONSTANT *v;
+  CONSTANT *c;
+  CONSTANT tmp;
 
 #define TRACE_EVAL_SB 0
   if (d == 0) {
@@ -2001,12 +2001,12 @@ eval_sb(int d)
   return 0;
 }
 
-static CONST *
-eval_const_array_triple_section(CONST *curr_e)
+static CONSTANT *
+eval_const_array_triple_section(CONSTANT *curr_e)
 {
   DTYPE dtype;
-  CONST *c, *lop, *rop;
-  CONST *v;
+  CONSTANT *c, *lop, *rop;
+  CONSTANT *v;
   int ndims = 0;
 
   sb.root = sb.roottail = NULL;
@@ -2026,7 +2026,7 @@ eval_const_array_triple_section(CONST *curr_e)
       rop = lop;
       dtype = rop->dtype;
     } else if (lop) {
-      CONST *t = eval_init_expr(lop);
+      CONSTANT *t = eval_init_expr(lop);
       if (t->id == AC_ACONST)
         sb.sub[ndims].subscr_base = t->subc;
       else
@@ -2080,8 +2080,8 @@ eval_const_array_triple_section(CONST *curr_e)
   return sb.root;
 }
 
-static CONST *
-eval_const_array_section(CONST *lop, DTYPE ldtype, DTYPE dtype)
+static CONSTANT *
+eval_const_array_section(CONSTANT *lop, DTYPE ldtype, DTYPE dtype)
 {
   ADSC *adsc = AD_DPTR(ldtype);
   int ndims = 0;
@@ -2125,12 +2125,12 @@ eval_const_array_section(CONST *lop, DTYPE ldtype, DTYPE dtype)
  * \param arg initilization expression
  * \param dtype expected result type
  */
-INLINE static CONST *
-eval_ishft(CONST *arg, DTYPE dtype)
+INLINE static CONSTANT *
+eval_ishft(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg = (rslt->id == AC_ACONST ? rslt->subc : rslt);
-  CONST *arg2 = eval_init_expr_item(arg->next);
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg = (rslt->id == AC_ACONST ? rslt->subc : rslt);
+  CONSTANT *arg2 = eval_init_expr_item(arg->next);
   ISZ_T val, shftval;
   INT ival[2];
 
@@ -2193,11 +2193,11 @@ eval_ishft(CONST *arg, DTYPE dtype)
 }
 
 #define INTINTRIN2(iname, ent, op)                                  \
-  static CONST *ent(CONST *arg, DTYPE dtype)                        \
+  static CONSTANT *ent(CONSTANT *arg, DTYPE dtype)                        \
   {                                                                 \
-    CONST *arg1 = eval_init_expr_item(arg);                         \
-    CONST *arg2 = eval_init_expr_item(arg->next);                   \
-    CONST *rslt = clone_init_const_list(arg1, true);                \
+    CONSTANT *arg1 = eval_init_expr_item(arg);                         \
+    CONSTANT *arg2 = eval_init_expr_item(arg->next);                   \
+    CONSTANT *rslt = clone_init_const_list(arg1, true);                \
     arg1 = rslt->id == AC_ACONST ? rslt->subc : rslt;               \
     arg2 = arg2->id == AC_ACONST ? arg2->subc : arg2;               \
     for (; arg1; arg1 = arg1->next, arg2 = arg2->next) {            \
@@ -2229,11 +2229,11 @@ INTINTRIN2("iand", eval_iand, &)
 INTINTRIN2("ior", eval_ior, |)
 INTINTRIN2("ieor", eval_ieor, ^)
 
-static CONST *
-eval_ichar(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_ichar(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr(arg);
-  CONST *wrkarg;
+  CONSTANT *rslt = eval_init_expr(arg);
+  CONSTANT *wrkarg;
   int srcdty;
   DTYPE rsltdtype = DDTG(dtype);
   int clen;
@@ -2258,12 +2258,12 @@ eval_ichar(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_char(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_char(CONSTANT *arg, DTYPE dtype)
 {
   DTYPE rsltdtype = DDTG(dtype);
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg = rslt->id == AC_ACONST ? rslt->subc : rslt;
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg = rslt->id == AC_ACONST ? rslt->subc : rslt;
 
   for (; wrkarg; wrkarg = wrkarg->next) {
     if (DT_ISWORD(wrkarg->dtype)) {
@@ -2277,12 +2277,12 @@ eval_char(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-INLINE static CONST *
-eval_int(CONST *arg, DTYPE dtype)
+INLINE static CONSTANT *
+eval_int(CONSTANT *arg, DTYPE dtype)
 {
   INT result;
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg = rslt->id == AC_ACONST ? rslt->subc : rslt;
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg = rslt->id == AC_ACONST ? rslt->subc : rslt;
 
   for (; wrkarg; wrkarg = wrkarg->next) {
     result = cngcon(wrkarg->u1.conval, wrkarg->dtype, DDTG(dtype));
@@ -2295,11 +2295,11 @@ eval_int(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_null(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_null(CONSTANT *arg, DTYPE dtype)
 {
-  CONST c = {0};
-  CONST *p = clone_init_const(&c, true);
+  CONSTANT c = {0};
+  CONSTANT *p = clone_init_const(&c, true);
   p->id = AC_CONST;
   p->repeatc = 1;
   p->dtype = DDTG(dtype);
@@ -2307,12 +2307,12 @@ eval_null(CONST *arg, DTYPE dtype)
   return p;
 }
 
-static CONST *
-eval_fltconvert(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_fltconvert(CONSTANT *arg, DTYPE dtype)
 {
   INT result;
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg = rslt->id == AC_ACONST ? rslt->subc : rslt;
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg = rslt->id == AC_ACONST ? rslt->subc : rslt;
 
   for (; wrkarg; wrkarg = wrkarg->next) {
     result = cngcon(wrkarg->u1.conval, wrkarg->dtype, DDTG(dtype));
@@ -2337,11 +2337,11 @@ eval_fltconvert(CONST *arg, DTYPE dtype)
   x[0] = CONVAL1G(b);   \
   x[1] = CONVAL2G(b);
 
-static CONST *
-eval_abs(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_abs(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt;
-  CONST *wrkarg;
+  CONSTANT *rslt;
+  CONSTANT *wrkarg;
   INT con1, res[4], num1[4], num2[4];
   DTYPE rsltdtype = dtype;
 
@@ -2405,28 +2405,28 @@ eval_abs(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_min(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_min(CONSTANT *arg, DTYPE dtype)
 {
-  CONST **arglist;
-  CONST *rslt;
-  CONST *wrkarg1;
-  CONST *wrkarg2;
-  CONST *c, *head;
-  CONST *root = NULL;
-  CONST *roottail = NULL;
+  CONSTANT **arglist;
+  CONSTANT *rslt;
+  CONSTANT *wrkarg1;
+  CONSTANT *wrkarg2;
+  CONSTANT *c, *head;
+  CONSTANT *root = NULL;
+  CONSTANT *roottail = NULL;
   int repeatc1, repeatc2;
   int nargs;
   int nelems = 0;
   int i, j;
 
-  rslt = (CONST*)getitem(4, sizeof(CONST));
-  BZERO(rslt, CONST, 1);
+  rslt = (CONSTANT*)getitem(4, sizeof(CONSTANT));
+  BZERO(rslt, CONSTANT, 1);
   rslt->dtype = arg->dtype;
 
   for (wrkarg1 = arg, nargs = 0; wrkarg1; wrkarg1 = wrkarg1->next, nargs++)
     ;
-  NEW(arglist, CONST *, nargs);
+  NEW(arglist, CONSTANT *, nargs);
   for (i = 0, wrkarg1 = arg; i < nargs; i++, wrkarg1 = wrkarg1->next) {
     head = arglist[i] = eval_init_expr(wrkarg1);
     if (DTY(head->dtype) == TY_ARRAY) {
@@ -2450,8 +2450,8 @@ eval_min(CONST *arg, DTYPE dtype)
     add_to_list(c, &root, &roottail);
   } else {
     for (i = 0; i < nelems; i++) {
-      c = (CONST*)getitem(4, sizeof(CONST));
-      BZERO(c, CONST, 1);
+      c = (CONSTANT*)getitem(4, sizeof(CONSTANT));
+      BZERO(c, CONSTANT, 1);
       c->id = AC_CONST;
       c->repeatc = 1;
       add_to_list(c, &root, &roottail);
@@ -2534,28 +2534,28 @@ eval_min(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_max(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_max(CONSTANT *arg, DTYPE dtype)
 {
-  CONST **arglist;
-  CONST *rslt;
-  CONST *wrkarg1;
-  CONST *wrkarg2;
-  CONST *c, *head;
-  CONST *root = NULL;
-  CONST *roottail = NULL;
+  CONSTANT **arglist;
+  CONSTANT *rslt;
+  CONSTANT *wrkarg1;
+  CONSTANT *wrkarg2;
+  CONSTANT *c, *head;
+  CONSTANT *root = NULL;
+  CONSTANT *roottail = NULL;
   int repeatc1, repeatc2;
   int nargs;
   int nelems = 0;
   int i, j;
 
-  rslt = (CONST*)getitem(4, sizeof(CONST));
-  BZERO(rslt, CONST, 1);
+  rslt = (CONSTANT*)getitem(4, sizeof(CONSTANT));
+  BZERO(rslt, CONSTANT, 1);
   rslt->dtype = arg->dtype;
 
   for (wrkarg1 = arg, nargs = 0; wrkarg1; wrkarg1 = wrkarg1->next, nargs++)
     ;
-  NEW(arglist, CONST *, nargs);
+  NEW(arglist, CONSTANT *, nargs);
   for (i = 0, wrkarg1 = arg; i < nargs; i++, wrkarg1 = wrkarg1->next) {
     head = arglist[i] = eval_init_expr(wrkarg1);
     if (DTY(head->dtype) == TY_ARRAY) {
@@ -2579,8 +2579,8 @@ eval_max(CONST *arg, DTYPE dtype)
     add_to_list(c, &root, &roottail);
   } else {
     for (i = 0; i < nelems; i++) {
-      c = (CONST*)getitem(4, sizeof(CONST));
-      BZERO(c, CONST, 1);
+      c = (CONSTANT*)getitem(4, sizeof(CONSTANT));
+      BZERO(c, CONSTANT, 1);
       c->id = AC_CONST;
       c->repeatc = 1;
       add_to_list(c, &root, &roottail);
@@ -2665,7 +2665,7 @@ eval_max(CONST *arg, DTYPE dtype)
 
 /* Compare two constant CONSTs. Return x > y or x < y depending on want_max. */
 static bool
-cmp_acl(DTYPE dtype, CONST *x, CONST *y, bool want_max, bool back)
+cmp_acl(DTYPE dtype, CONSTANT *x, CONSTANT *y, bool want_max, bool back)
 {
   int cmp;
   switch (DTY(dtype)) {
@@ -2945,11 +2945,11 @@ mk_largest_val(DTYPE dtype)
 }
 
 /* Get a CONST representing the smallest/largest value of this type. */
-static CONST *
+static CONSTANT *
 get_minmax_val(DTYPE dtype, bool want_max)
 {
-  CONST *temp = (CONST *)getitem(4, sizeof(CONST));
-  BZERO(temp, CONST, 1);
+  CONSTANT *temp = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+  BZERO(temp, CONSTANT, 1);
   temp->next = 0;
   temp->id = AC_CONST;
   temp->dtype = dtype;
@@ -2959,12 +2959,12 @@ get_minmax_val(DTYPE dtype, bool want_max)
   return eval_init_expr_item(clone_init_const(temp, true));
 }
 
-static CONST *
-convert_acl_dtype(CONST *head, DTYPE oldtype, DTYPE newtype)
+static CONSTANT *
+convert_acl_dtype(CONSTANT *head, DTYPE oldtype, DTYPE newtype)
 {
   DTYPE dtype;
 
-  CONST *cur_lop;
+  CONSTANT *cur_lop;
   if (DTY(oldtype) == TY_STRUCT || DTY(oldtype) == TY_CHAR ||
       DTY(oldtype) == TY_NCHAR || DTY(oldtype) == TY_UNION) {
     return head;
@@ -2987,20 +2987,20 @@ convert_acl_dtype(CONST *head, DTYPE oldtype, DTYPE newtype)
   return head;
 }
 
-static CONST *
+static CONSTANT *
 do_eval_minval_or_maxval(INDEX *index, DTYPE elem_dt, DTYPE loc_dt,
-                         CONST *elems, unsigned dim, CONST *mask, bool back,
+                         CONSTANT *elems, unsigned dim, CONSTANT *mask, bool back,
                          int intrin)
 {
   unsigned ndims = index->ndims;
   unsigned i;
-  CONST **vals;
+  CONSTANT **vals;
   unsigned *locs;
   unsigned vals_size = 1;
   unsigned locs_size;
   bool want_max = intrin == AC_I_maxloc || intrin == AC_I_maxval;
   bool want_val = intrin == AC_I_minval || intrin == AC_I_maxval;
-  CONST *result;
+  CONSTANT *result;
  
 /* vals[vals_size] contains the result for {min,max}val()
  * locs[locs_size] contains the result for {min,max}loc() */
@@ -3014,7 +3014,7 @@ do_eval_minval_or_maxval(INDEX *index, DTYPE elem_dt, DTYPE loc_dt,
     locs_size = vals_size;
   }
 
-  NEW(vals, CONST *, vals_size);
+  NEW(vals, CONSTANT *, vals_size);
   for (i = 0; i < vals_size; ++i) {
     vals[i] = get_minmax_val(elem_dt, want_max);
   }
@@ -3023,15 +3023,15 @@ do_eval_minval_or_maxval(INDEX *index, DTYPE elem_dt, DTYPE loc_dt,
   BZERO(locs, unsigned, locs_size);
 
   { /* iterate over elements computing min/max into vals[] and locs[] */
-    CONST *elem;
+    CONSTANT *elem;
     for (elem = elems; elem != 0; elem = elem->next) {
       if (elem->dtype != elem_dt) {
         elem = convert_acl_dtype(elem, elem->dtype, elem_dt);
       }
       if (mask->u1.conval) {
-        CONST *val = eval_init_expr_item(elem);
+        CONSTANT *val = eval_init_expr_item(elem);
         unsigned offset = get_offset_without_dim(index, dim);
-        CONST *prev_val = vals[offset];
+        CONSTANT *prev_val = vals[offset];
         if (cmp_acl(elem_dt, val, prev_val, want_max, back)) {
           vals[offset] = val;
           if (dim == 0) {
@@ -3048,13 +3048,13 @@ do_eval_minval_or_maxval(INDEX *index, DTYPE elem_dt, DTYPE loc_dt,
   }
 
   { /* build result from vals[] or locs[] */
-    CONST *result;
-    CONST *subc = NULL; /* elements of result array */
-    CONST *roottail = NULL;
+    CONSTANT *result;
+    CONSTANT *subc = NULL; /* elements of result array */
+    CONSTANT *roottail = NULL;
     if (!want_val) {
       for (i = 0; i < locs_size; i++) {
-        CONST *elem = (CONST *)getitem(4, sizeof(CONST));
-        BZERO(elem, CONST, 1);
+        CONSTANT *elem = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+        BZERO(elem, CONSTANT, 1);
         elem->id = AC_CONST;
         elem->dtype = loc_dt;
         elem->u1.conval = locs[i];
@@ -3069,26 +3069,26 @@ do_eval_minval_or_maxval(INDEX *index, DTYPE elem_dt, DTYPE loc_dt,
       return vals[0]; /* minval/maxval with no dim has scalar result */
     }
 
-    result = (CONST*)getitem(4, sizeof(CONST));;
-    BZERO(result, CONST, 1);
+    result = (CONSTANT*)getitem(4, sizeof(CONSTANT));;
+    BZERO(result, CONSTANT, 1);
     result->id = AC_ACONST;
     result->subc = subc;
     return result;
   }
 }
 
-static CONST *
-eval_scale(CONST *arg, int type)
+static CONSTANT *
+eval_scale(CONSTANT *arg, int type)
 {
-  CONST *rslt;
-  CONST *arg2;
+  CONSTANT *rslt;
+  CONSTANT *arg2;
   INT i, conval1, conval2, conval;
   DBLINT64 inum1, inum2;
   INT e;
   DBLE dconval;
  
-  rslt = (CONST*)getitem(4, sizeof(CONST));
-  BZERO(rslt, CONST, 1);
+  rslt = (CONSTANT*)getitem(4, sizeof(CONSTANT));
+  BZERO(rslt, CONSTANT, 1);
   rslt->id = AC_CONST;
   rslt->repeatc = 1;
   rslt->dtype = arg->dtype;  
@@ -3140,19 +3140,19 @@ eval_scale(CONST *arg, int type)
   return rslt;
 }
 
-static CONST *
-eval_minval_or_maxval(CONST *arg, DTYPE dtype, int intrin)
+static CONSTANT *
+eval_minval_or_maxval(CONSTANT *arg, DTYPE dtype, int intrin)
 {
   DTYPE elem_dt = array_element_dtype(dtype);
   DTYPE loc_dtype = DT_INT;
-  CONST *array = eval_init_expr_item(arg);
+  CONSTANT *array = eval_init_expr_item(arg);
   unsigned dim = 0; /* 0 means no DIM specified, otherwise in 1..ndims */
-  CONST *mask = 0;
+  CONSTANT *mask = 0;
   bool back = FALSE;
   
   INDEX index;
   unsigned i;
-  CONST *arg2;
+  CONSTANT *arg2;
   ADSC *adsc;
   int arr_ndims, extent, lwbd, upbd;
 
@@ -3175,8 +3175,8 @@ eval_minval_or_maxval(CONST *arg, DTYPE dtype, int intrin)
 
   if (mask == 0) {
     /* mask defaults to .true. */
-    mask = (CONST*)getitem(4, sizeof(CONST));
-    BZERO(mask, CONST, 1);
+    mask = (CONSTANT*)getitem(4, sizeof(CONSTANT));
+    BZERO(mask, CONSTANT, 1);
     mask->id = AC_CONST;
     mask->dtype = DT_LOG;
     mask->u1.conval = 1;
@@ -3201,11 +3201,11 @@ eval_minval_or_maxval(CONST *arg, DTYPE dtype, int intrin)
                                   dim, mask, back, intrin);
 }
 
-static CONST *
-eval_nint(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_nint(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg;
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg;
   int conval;
 
   wrkarg = (rslt->id == AC_ACONST ? rslt->subc : rslt);
@@ -3242,11 +3242,11 @@ eval_nint(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-INLINE static CONST *
-eval_floor(CONST *arg, DTYPE dtype)
+INLINE static CONSTANT *
+eval_floor(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg;
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg;
   int conval;
 
   wrkarg = (rslt->id == AC_ACONST ? rslt->subc : rslt);
@@ -3294,11 +3294,11 @@ eval_floor(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-INLINE static CONST *
-eval_ceiling(CONST *arg, DTYPE dtype)
+INLINE static CONSTANT *
+eval_ceiling(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg;
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg;
   int conval;
 
   wrkarg = (rslt->id == AC_ACONST ? rslt->subc : rslt);
@@ -3346,11 +3346,11 @@ eval_ceiling(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_mod(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_mod(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt;
-  CONST *arg1, *arg2;
+  CONSTANT *rslt;
+  CONSTANT *arg1, *arg2;
   INT conval;
   arg1 = eval_init_expr_item(arg);
   arg2 = eval_init_expr_item(arg->next);
@@ -3416,12 +3416,12 @@ eval_mod(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_repeat(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_repeat(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = NULL;
-  CONST *arg1 = eval_init_expr_item(arg);
-  CONST *arg2 = eval_init_expr_item(arg->next);
+  CONSTANT *rslt = NULL;
+  CONSTANT *arg1 = eval_init_expr_item(arg);
+  CONSTANT *arg2 = eval_init_expr_item(arg->next);
   int i, j, cvlen, newlen, result;
   int ncopies;
   char *p, *cp, *str;
@@ -3440,8 +3440,8 @@ eval_repeat(CONST *arg, DTYPE dtype)
   }
   result = getstring(str, newlen);
 
-  rslt = (CONST *)getitem(4, sizeof(CONST));
-  BZERO(rslt, CONST, 1);
+  rslt = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+  BZERO(rslt, CONSTANT, 1);
   rslt->id = AC_CONST;
   rslt->dtype = dtype;
   rslt->repeatc = 1;
@@ -3450,11 +3450,11 @@ eval_repeat(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_len_trim(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_len_trim(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg;
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg;
   char *p;
   int cvlen, result;
 
@@ -3478,11 +3478,11 @@ eval_len_trim(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_selected_real_kind(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_selected_real_kind(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg;
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg;
   int r;
   int con;
 
@@ -3513,8 +3513,8 @@ eval_selected_real_kind(CONST *arg, DTYPE dtype)
     }
   }
 
-  rslt = (CONST *)getitem(4, sizeof(CONST));
-  BZERO(rslt, CONST, 1);
+  rslt = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+  BZERO(rslt, CONSTANT, 1);
   rslt->id = AC_CONST;
   rslt->dtype = DT_INT;
   rslt->repeatc = 1;
@@ -3523,11 +3523,11 @@ eval_selected_real_kind(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_selected_int_kind(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_selected_int_kind(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg;
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg;
   int r;
   int con;
 
@@ -3548,10 +3548,10 @@ eval_selected_int_kind(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_selected_char_kind(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_selected_char_kind(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr(arg);
+  CONSTANT *rslt = eval_init_expr(arg);
   int r;
   int con;
 
@@ -3559,11 +3559,11 @@ eval_selected_char_kind(CONST *arg, DTYPE dtype)
   if (sem_eq_str(con, "ASCII"))
     r = 1;
   else if (sem_eq_str(con, "DEFAULT"))
-    return (CONST *)1;
+    return (CONSTANT *)1;
   else
     r = -1;
-  rslt = (CONST *)getitem(4, sizeof(CONST));
-  BZERO(rslt, CONST, 1);
+  rslt = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+  BZERO(rslt, CONSTANT, 1);
   rslt->id = AC_CONST;
   rslt->dtype = DT_INT;
   rslt->repeatc = 1;
@@ -3571,13 +3571,13 @@ eval_selected_char_kind(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_scan(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_scan(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = NULL;
-  CONST *rslttail = NULL;
-  CONST *c;
-  CONST *wrkarg;
+  CONSTANT *rslt = NULL;
+  CONSTANT *rslttail = NULL;
+  CONSTANT *c;
+  CONSTANT *wrkarg;
   int i, j;
   int l_string, l_set;
   char *p_string, *p_set;
@@ -3601,8 +3601,8 @@ eval_scan(CONST *arg, DTYPE dtype)
     p_string = stb.n_base + CONVAL1G(wrkarg->u1.conval);
     l_string = size_of(wrkarg->dtype);
 
-    c = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(c, CONST, 1);
+    c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(c, CONSTANT, 1);
     c->id = AC_CONST;
     c->dtype = DT_INT;
     c->repeatc = 1;
@@ -3630,13 +3630,13 @@ eval_scan(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_verify(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_verify(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = NULL;
-  CONST *rslttail = NULL;
-  CONST *c;
-  CONST *wrkarg;
+  CONSTANT *rslt = NULL;
+  CONSTANT *rslttail = NULL;
+  CONSTANT *c;
+  CONSTANT *wrkarg;
   int i, j;
   int l_string, l_set;
   char *p_string, *p_set;
@@ -3660,8 +3660,8 @@ eval_verify(CONST *arg, DTYPE dtype)
     p_string = stb.n_base + CONVAL1G(wrkarg->u1.conval);
     l_string = size_of(wrkarg->dtype);
 
-    c = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(c, CONST, 1);
+    c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(c, CONSTANT, 1);
     c->id = AC_CONST;
     c->dtype = DT_INT;
     c->repeatc = 1;
@@ -3694,13 +3694,13 @@ eval_verify(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_index(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_index(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = NULL;
-  CONST *rslttail = NULL;
-  CONST *c;
-  CONST *wrkarg;
+  CONSTANT *rslt = NULL;
+  CONSTANT *rslttail = NULL;
+  CONSTANT *c;
+  CONSTANT *wrkarg;
   int i, n;
   int l_string, l_substring;
   char *p_string, *p_substring;
@@ -3724,8 +3724,8 @@ eval_index(CONST *arg, DTYPE dtype)
     p_string = stb.n_base + CONVAL1G(wrkarg->u1.conval);
     l_string = size_of(wrkarg->dtype);
 
-    c = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(c, CONST, 1);
+    c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(c, CONSTANT, 1);
     c->id = AC_CONST;
     c->dtype = DT_INT;
     c->repeatc = 1;
@@ -3755,10 +3755,10 @@ eval_index(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_trim(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_trim(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr(arg);
+  CONSTANT *rslt = eval_init_expr(arg);
   char *p, *cp, *str;
   int i, cvlen, newlen;
 
@@ -3792,11 +3792,11 @@ eval_trim(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-INLINE static CONST *
-eval_adjustl(CONST *arg, DTYPE dtype)
+INLINE static CONSTANT *
+eval_adjustl(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr(arg);
-  CONST *wrkarg;
+  CONSTANT *rslt = eval_init_expr(arg);
+  CONSTANT *wrkarg;
   char *p, *cp, *str;
   char ch;
   int i, cvlen, origlen;
@@ -3830,11 +3830,11 @@ eval_adjustl(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_adjustr(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_adjustr(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr(arg);
-  CONST *wrkarg;
+  CONSTANT *rslt = eval_init_expr(arg);
+  CONSTANT *wrkarg;
   char *p, *cp, *str;
   char ch;
   int i, cvlen, origlen;
@@ -3869,22 +3869,22 @@ eval_adjustr(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_shape(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_shape(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt;
+  CONSTANT *rslt;
 
   rslt = clone_init_const(arg, true);
   return rslt;
 }
 
-static CONST *
-eval_size(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_size(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *arg1 = arg;
-  CONST *arg2 = arg->next;
-  CONST *arg3;
-  CONST *rslt;
+  CONSTANT *arg1 = arg;
+  CONSTANT *arg2 = arg->next;
+  CONSTANT *arg3;
+  CONSTANT *rslt;
   int dim;
   int i;
 
@@ -3903,13 +3903,13 @@ eval_size(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-static CONST *
-eval_ul_bound(int ul_selector, CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_ul_bound(int ul_selector, CONSTANT *arg, DTYPE dtype)
 {
-  CONST *arg1 = arg;
-  CONST *arg2;
+  CONSTANT *arg1 = arg;
+  CONSTANT *arg2;
   int arg2const;
-  CONST *rslt;
+  CONSTANT *rslt;
   ADSC *adsc = AD_DPTR(arg1->dtype);
   int rank = AD_UPBD(adsc, 0);
   int i;
@@ -3934,11 +3934,11 @@ eval_ul_bound(int ul_selector, CONST *arg, DTYPE dtype)
 }
 
 static int
-copy_initconst_to_array(CONST **arr, CONST *c, int count)
+copy_initconst_to_array(CONSTANT **arr, CONSTANT *c, int count)
 {
   int i;
   int acnt;
-  CONST *acl;
+  CONSTANT *acl;
 
   for (i = 0; i < count;) {
     if (c == NULL)
@@ -3970,17 +3970,17 @@ copy_initconst_to_array(CONST **arr, CONST *c, int count)
   return i;
 }
 
-static CONST *
-eval_reshape(CONST *arg, DTYPE dtype)
+static CONSTANT *
+eval_reshape(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *srclist = eval_init_expr_item(arg);
-  CONST *tacl;
-  CONST *pad = NULL;
-  CONST *wrklist = NULL;
-  CONST *orderarg = NULL;
-  CONST **old_val = NULL;
-  CONST **new_val = NULL;
-  CONST *c = NULL;
+  CONSTANT *srclist = eval_init_expr_item(arg);
+  CONSTANT *tacl;
+  CONSTANT *pad = NULL;
+  CONSTANT *wrklist = NULL;
+  CONSTANT *orderarg = NULL;
+  CONSTANT **old_val = NULL;
+  CONSTANT **new_val = NULL;
+  CONSTANT *c = NULL;
   ADSC *adsc = AD_DPTR(dtype);
   int *new_index;
   int src_sz, dest_sz;
@@ -4039,15 +4039,15 @@ eval_reshape(CONST *arg, DTYPE dtype)
     }
   }
 
-  NEW(old_val, CONST *, dest_sz);
+  NEW(old_val, CONSTANT *, dest_sz);
   if (old_val == NULL)
     return CONST_ERR(dtype);
-  BZERO(old_val, CONST *, dest_sz);
-  NEW(new_val, CONST *, dest_sz);
+  BZERO(old_val, CONSTANT *, dest_sz);
+  NEW(new_val, CONSTANT *, dest_sz);
   if (new_val == NULL) {
     return CONST_ERR(dtype);
   }
-  BZERO(new_val, CONST *, dest_sz);
+  BZERO(new_val, CONSTANT *, dest_sz);
   NEW(new_index, int, dest_sz);
   if (new_index == NULL) {
     return CONST_ERR(dtype);
@@ -4095,7 +4095,7 @@ eval_reshape(CONST *arg, DTYPE dtype)
   }
 
   for (i = 0; i < dest_sz; i++) {
-    CONST *tail;
+    CONSTANT *tail;
     int idx, start, end;
     int index = new_index[i];
     if (old_val[index]) {
@@ -4249,11 +4249,11 @@ transfer_load(DTYPE dtype, char *source)
   return getcon(num, dtype);
 }
 
-INLINE static CONST *
-eval_transfer(CONST *arg, DTYPE dtype)
+INLINE static CONSTANT *
+eval_transfer(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *src = eval_init_expr(arg);
-  CONST *rslt;
+  CONSTANT *src = eval_init_expr(arg);
+  CONSTANT *rslt;
   int avail;
   char value[256];
   char *buffer = value;
@@ -4297,15 +4297,15 @@ eval_transfer(CONST *arg, DTYPE dtype)
       bp += ssize;
       avail += ssize;
     }
-    rslt = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(rslt, CONST, 1);
+    rslt = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(rslt, CONSTANT, 1);
     rslt->id = AC_CONST;
     rslt->dtype = rdtype;
     rslt->u1.conval = transfer_load(rdtype, buffer);
     rslt->repeatc = 1;
   } else {
     /* Result is array. */
-    CONST *root, **current;
+    CONSTANT *root, **current;
     ISZ_T i, nelem;
     int j, cons;
 
@@ -4326,8 +4326,8 @@ eval_transfer(CONST *arg, DTYPE dtype)
         bp += ssize;
         avail += ssize;
       }
-      rslt = (CONST *)getitem(4, sizeof(CONST));
-      BZERO(rslt, CONST, 1);
+      rslt = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+      BZERO(rslt, CONSTANT, 1);
       rslt->id = AC_CONST;
       rslt->dtype = rdtype;
       rslt->u1.conval = transfer_load(rdtype, buffer);
@@ -4339,8 +4339,8 @@ eval_transfer(CONST *arg, DTYPE dtype)
       for (j = 0; j < avail; j++)
         buffer[j] = buffer[rsize + j];
     }
-    rslt = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(rslt, CONST, 1);
+    rslt = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(rslt, CONSTANT, 1);
     rslt->id = AC_ACONST;
     rslt->dtype = dtype;
     rslt->subc = root;
@@ -4352,11 +4352,11 @@ eval_transfer(CONST *arg, DTYPE dtype)
   return rslt;
 }
 
-INLINE static CONST *
-eval_sqrt(CONST *arg, DTYPE dtype)
+INLINE static CONSTANT *
+eval_sqrt(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *rslt = eval_init_expr_item(arg);
-  CONST *wrkarg;
+  CONSTANT *rslt = eval_init_expr_item(arg);
+  CONSTANT *wrkarg;
   INT conval;
 
   wrkarg = (rslt->id == AC_ACONST ? rslt->subc : rslt);
@@ -4419,10 +4419,10 @@ eval_sqrt(CONST *arg, DTYPE dtype)
 /*---------------------------------------------------------------------*/
 
 #define FPINTRIN1(iname, ent, fscutil, dscutil)                     \
-  static CONST *ent(CONST *arg, DTYPE dtype)                        \
+  static CONSTANT *ent(CONSTANT *arg, DTYPE dtype)                        \
   {                                                                 \
-    CONST *rslt = eval_init_expr_item(arg);                         \
-    CONST *wrkarg;                                                  \
+    CONSTANT *rslt = eval_init_expr_item(arg);                         \
+    CONSTANT *wrkarg;                                                  \
     INT conval;                                                     \
     wrkarg = (rslt->id == AC_ACONST ? rslt->subc : rslt);           \
     for (; wrkarg; wrkarg = wrkarg->next) {                         \
@@ -4479,10 +4479,10 @@ FPINTRIN1("acos", eval_acos, xfacos, xdacos)
 FPINTRIN1("atan", eval_atan, xfatan, xdatan)
 
 #define FPINTRIN2(iname, ent, fscutil, dscutil)                     \
-  static CONST *ent(CONST *arg, DTYPE dtype)                        \
+  static CONSTANT *ent(CONSTANT *arg, DTYPE dtype)                        \
   {                                                                 \
-    CONST *rslt;                                                    \
-    CONST *arg1, *arg2;                                             \
+    CONSTANT *rslt;                                                    \
+    CONSTANT *arg1, *arg2;                                             \
     INT conval;                                                     \
     arg1 = eval_init_expr_item(arg);                                \
     arg2 = eval_init_expr_item(arg->next);                          \
@@ -4529,14 +4529,14 @@ FPINTRIN1("atan", eval_atan, xfatan, xdatan)
 
 FPINTRIN2("atan2", eval_atan2, xfatan2, xdatan2)
 
-INLINE static CONST *
-eval_merge(CONST *arg, DTYPE dtype)
+INLINE static CONSTANT *
+eval_merge(CONSTANT *arg, DTYPE dtype)
 {
-  CONST *tsource = eval_init_expr_item(arg);
-  CONST *fsource = eval_init_expr_item(arg->next);
-  CONST *mask = eval_init_expr_item(arg->next->next);
-  CONST *result = clone_init_const_list(tsource, true);
-  CONST *r = result;
+  CONSTANT *tsource = eval_init_expr_item(arg);
+  CONSTANT *fsource = eval_init_expr_item(arg->next);
+  CONSTANT *mask = eval_init_expr_item(arg->next->next);
+  CONSTANT *result = clone_init_const_list(tsource, true);
+  CONSTANT *r = result;
   if (tsource->id == AC_ACONST)
     tsource = tsource->subc;
   if (fsource->id == AC_ACONST)
@@ -4560,7 +4560,7 @@ eval_merge(CONST *arg, DTYPE dtype)
 /*---------------------------------------------------------------------*/
 
 static void
-mk_cmp(CONST *c, int op, INT l_conval, INT r_conval, DTYPE rdtype, DTYPE dt)
+mk_cmp(CONSTANT *c, int op, INT l_conval, INT r_conval, DTYPE rdtype, DTYPE dt)
 {
   switch (get_ast_op(op)) {
   case OP_EQ:
@@ -4618,15 +4618,15 @@ mk_cmp(CONST *c, int op, INT l_conval, INT r_conval, DTYPE rdtype, DTYPE dt)
   }
 }
 
-static CONST *
-eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
+static CONSTANT *
+eval_init_op(int op, CONSTANT *lop, DTYPE ldtype, CONSTANT *rop, DTYPE rdtype,
              SPTR sptr, DTYPE dtype)
 {
-  CONST *root = NULL;
-  CONST *roottail = NULL;
-  CONST *c;
-  CONST *cur_lop;
-  CONST *cur_rop;
+  CONSTANT *root = NULL;
+  CONSTANT *roottail = NULL;
+  CONSTANT *c;
+  CONSTANT *cur_lop;
+  CONSTANT *cur_rop;
   DTYPE dt = DDTG(dtype);
   DTYPE e_dtype;
   int i;
@@ -4643,8 +4643,8 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
   if (op == AC_NEG || op == AC_LNOT) {
     cur_lop = lop->id == AC_ACONST ? lop->subc : lop;
     for (; cur_lop; cur_lop = cur_lop->next) {
-      c = (CONST *)getitem(4, sizeof(CONST));
-      BZERO(c, CONST, 1);
+      c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+      BZERO(c, CONSTANT, 1);
       c->id = AC_CONST;
       c->dtype = dt;
       c->repeatc = 1;
@@ -4664,8 +4664,8 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
     cur_lop = lop->id == AC_ACONST ? lop->subc : lop;
     l_repeatc = cur_lop->repeatc;
     for (; cur_lop;) {
-      c = (CONST *)getitem(4, sizeof(CONST));
-      BZERO(c, CONST, 1);
+      c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+      BZERO(c, CONSTANT, 1);
       c->id = AC_CONST;
       c->dtype = dt;
       c->repeatc = 1;
@@ -4699,8 +4699,8 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
     BCOPY(s, stb.n_base + CONVAL1G(lsptr), char, llen);
     BCOPY(s + llen, stb.n_base + CONVAL1G(rsptr), char, rlen);
 
-    c = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(c, CONST, 1);
+    c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(c, CONSTANT, 1);
     c->id = AC_CONST;
     c->dtype = get_type(2, TY_CHAR, llen + rlen); /* should check char type */
     c->repeatc = 1;
@@ -4873,8 +4873,8 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
         BCOPY(s, stb.n_base + CONVAL1G(lsptr), char, llen);
         BCOPY(s + llen, stb.n_base + CONVAL1G(rsptr), char, rlen);
 
-        c = (CONST *)getitem(4, sizeof(CONST));
-        BZERO(c, CONST, 1);
+        c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+        BZERO(c, CONSTANT, 1);
         c->id = AC_CONST;
         c->dtype = get_type(2, TY_CHAR, llen + rlen);
         c->repeatc = 1;
@@ -4897,8 +4897,8 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
       return root;
     }
     for (; cur_rop && cur_lop;) {
-      c = (CONST *)getitem(4, sizeof(CONST));
-      BZERO(c, CONST, 1);
+      c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+      BZERO(c, CONSTANT, 1);
       c->id = AC_CONST;
       c->dtype = dt;
       c->repeatc = 1;
@@ -4956,8 +4956,8 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
         BCOPY(s, stb.n_base + CONVAL1G(lsptr), char, llen);
         BCOPY(s + llen, stb.n_base + CONVAL1G(rsptr), char, rlen);
 
-        c = (CONST *)getitem(4, sizeof(CONST));
-        BZERO(c, CONST, 1);
+        c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+        BZERO(c, CONSTANT, 1);
         c->id = AC_CONST;
         c->dtype = get_type(2, TY_CHAR, llen + rlen);
         c->repeatc = 1;
@@ -4979,8 +4979,8 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
       }
     }
     for (; cur_lop;) {
-      c = (CONST *)getitem(4, sizeof(CONST));
-      BZERO(c, CONST, 1);
+      c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+      BZERO(c, CONSTANT, 1);
       c->id = AC_CONST;
       c->dtype = dt;
       c->repeatc = 1;
@@ -5016,8 +5016,8 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
         BCOPY(s, stb.n_base + CONVAL1G(lsptr), char, llen);
         BCOPY(s + llen, stb.n_base + CONVAL1G(rsptr), char, rlen);
 
-        c = (CONST *)getitem(4, sizeof(CONST));
-        BZERO(c, CONST, 1);
+        c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+        BZERO(c, CONSTANT, 1);
         c->id = AC_CONST;
         c->dtype = get_type(2, TY_CHAR, llen + rlen);
         c->repeatc = 1;
@@ -5034,8 +5034,8 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
       return root;
     }
     for (; cur_rop;) {
-      c = (CONST *)getitem(4, sizeof(CONST));
-      BZERO(c, CONST, 1);
+      c = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+      BZERO(c, CONSTANT, 1);
       c->id = AC_CONST;
       c->dtype = dt;
       c->repeatc = 1;
@@ -5062,8 +5062,8 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
     }
   } else {
     /* scalar <binop> scalar */
-    root = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(root, CONST, 1);
+    root = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(root, CONSTANT, 1);
     root->id = AC_CONST;
     root->repeatc = 1;
     root->dtype = dt;
@@ -5134,13 +5134,13 @@ eval_init_op(int op, CONST *lop, DTYPE ldtype, CONST *rop, DTYPE rdtype,
   return root;
 }
 
-static CONST *
-eval_array_constructor(CONST *e)
+static CONSTANT *
+eval_array_constructor(CONSTANT *e)
 {
-  CONST *root = NULL;
-  CONST *roottail = NULL;
-  CONST *cur_e;
-  CONST *new_e;
+  CONSTANT *root = NULL;
+  CONSTANT *roottail = NULL;
+  CONSTANT *cur_e;
+  CONSTANT *new_e;
 
   /* collapse nested array contstructors */
   for (cur_e = e->subc; cur_e; cur_e = cur_e->next) {
@@ -5157,12 +5157,12 @@ eval_array_constructor(CONST *e)
   return root;
 }
 
-static CONST *
-eval_init_expr_item(CONST *cur_e)
+static CONSTANT *
+eval_init_expr_item(CONSTANT *cur_e)
 {
-  CONST *new_e = NULL, *rslt, *rslttail;
-  CONST *lop;
-  CONST *rop, *temp;
+  CONSTANT *new_e = NULL, *rslt, *rslttail;
+  CONSTANT *lop;
+  CONSTANT *rop, *temp;
   int repeatc;
   switch (cur_e->id) {
   case AC_IDENT:
@@ -5238,13 +5238,13 @@ eval_init_expr_item(CONST *cur_e)
   return new_e;
 }
 
-static CONST *
-eval_init_expr(CONST *e)
+static CONSTANT *
+eval_init_expr(CONSTANT *e)
 {
-  CONST *root = NULL;
-  CONST *roottail = NULL;
-  CONST *cur_e;
-  CONST *new_e;
+  CONSTANT *root = NULL;
+  CONSTANT *roottail = NULL;
+  CONSTANT *cur_e;
+  CONSTANT *new_e;
 
   for (cur_e = e; cur_e; cur_e = cur_e->next) {
     switch (cur_e->id) {
@@ -5281,19 +5281,19 @@ eval_init_expr(CONST *e)
   return root;
 }
 
-static CONST *
-eval_do(CONST *ido)
+static CONSTANT *
+eval_do(CONSTANT *ido)
 {
   ISZ_T i;
   IDOINFO *di = &ido->u1.ido;
   SPTR idx_sptr = di->index_var;
-  CONST *idx_ict;
-  CONST *root = NULL;
-  CONST *roottail = NULL;
-  CONST *ict;
-  CONST *initict = eval_init_expr_item(di->initval);
-  CONST *limitict = eval_init_expr_item(di->limitval);
-  CONST *stepict = eval_init_expr_item(di->stepval);
+  CONSTANT *idx_ict;
+  CONSTANT *root = NULL;
+  CONSTANT *roottail = NULL;
+  CONSTANT *ict;
+  CONSTANT *initict = eval_init_expr_item(di->initval);
+  CONSTANT *limitict = eval_init_expr_item(di->limitval);
+  CONSTANT *stepict = eval_init_expr_item(di->stepval);
   ISZ_T initval = get_ival(initict->dtype, initict->u1.conval);
   ISZ_T limitval = get_ival(limitict->dtype, limitict->u1.conval);
   ISZ_T stepval = get_ival(stepict->dtype, stepict->u1.conval);
@@ -5303,8 +5303,8 @@ eval_do(CONST *ido)
   if (DINITG(idx_sptr) && PARAMVALG(idx_sptr)) {
     idx_ict = init_const[PARAMVALG(idx_sptr) - 1];
   } else {
-    idx_ict = (CONST *)getitem(4, sizeof(CONST));
-    BZERO(idx_ict, CONST, 1);
+    idx_ict = (CONSTANT *)getitem(4, sizeof(CONSTANT));
+    BZERO(idx_ict, CONSTANT, 1);
     idx_ict->id = AC_CONST;
     idx_ict->dtype = DTYPEG(idx_sptr);
     idx_ict->repeatc = 1;
@@ -5355,14 +5355,14 @@ eval_do(CONST *ido)
   return root;
 }
 
-static CONST *
-clone_init_const(CONST *original, int temp)
+static CONSTANT *
+clone_init_const(CONSTANT *original, int temp)
 {
-  CONST *clone;
+  CONSTANT *clone;
 
   if (!original)
     return NULL;
-  clone = (CONST *)getitem(4, sizeof(CONST));
+  clone = (CONSTANT *)getitem(4, sizeof(CONSTANT));
   *clone = *original;
   if (clone->subc) {
     clone->subc = clone_init_const_list(original->subc, temp);
@@ -5379,11 +5379,11 @@ clone_init_const(CONST *original, int temp)
   return clone;
 }
 
-static CONST *
-clone_init_const_list(CONST *original, int temp)
+static CONSTANT *
+clone_init_const_list(CONSTANT *original, int temp)
 {
-  CONST *clone = NULL;
-  CONST *clonetail = NULL;
+  CONSTANT *clone = NULL;
+  CONSTANT *clonetail = NULL;
 
   clone = clone_init_const(original, temp);
   for (original = original->next; original; original = original->next) {
@@ -5393,9 +5393,9 @@ clone_init_const_list(CONST *original, int temp)
 }
 
 static void
-add_to_list(CONST *val, CONST **root, CONST **roottail)
+add_to_list(CONSTANT *val, CONSTANT **root, CONSTANT **roottail)
 {
-  CONST *tail;
+  CONSTANT *tail;
   if (roottail && *roottail) {
     (*roottail)->next = val;
   } else if (*root) {
@@ -5413,7 +5413,7 @@ add_to_list(CONST *val, CONST **root, CONST **roottail)
 }
 
 static void
-save_init(CONST *ict, SPTR sptr)
+save_init(CONSTANT *ict, SPTR sptr)
 {
   if (PARAMVALG(sptr)) {
     /* multiple initialization or overlapping initialization error,

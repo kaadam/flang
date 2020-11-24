@@ -3422,7 +3422,7 @@ add_ag_fptr_name(char *ag_name)
 
 #if defined(TARGET_WIN)
 void
-dllexport_mod(int modu)
+dllexport_mod(SPTR modu)
 {
   int gg;
   gg = get_ag(modu);
@@ -3497,7 +3497,7 @@ getextfuncname(SPTR sptr)
   } else {
 #if defined(TARGET_WIN)
     /* we have a mix of undecorated and decorated names on win32 */
-    strcpy(name, "_MAIN_");
+    strcpy(name, "MAIN_");
     return name;
 #else
     q = "MAIN";
@@ -3791,7 +3791,7 @@ getsname(SPTR sptr)
     } else {
 #if defined(TARGET_WIN)
       /* we have a mix of undecorated and decorated names on win32 */
-      strcpy(name, "_MAIN_");
+      strcpy(name, "MAIN_");
       return name;
 #else
       q = "MAIN";
@@ -5053,7 +5053,7 @@ get_llvm_name(SPTR sptr)
     } else {
 #if defined(TARGET_WIN)
       /* we have a mix of undecorated and decorated names on win32 */
-      strcpy(name, "_MAIN_");
+      strcpy(name, "MAIN_");
       return name;
 #else
       q = "MAIN";

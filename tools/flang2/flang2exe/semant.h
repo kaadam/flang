@@ -283,25 +283,28 @@ typedef struct VAR { /* used for elements of dinit variable list */
 } VAR;
 
 /* Define Initializer Constant Tree */
-typedef struct CONST CONST;
+//  CONST CONST preprocessed -> const const
+// clang10...
+struct CONSTANT;
+typedef struct CONSTANT CONSTANT;
 
 typedef struct {
   SPTR index_var; /* sptr of index variable */
-  CONST *initval;
-  CONST *limitval;
-  CONST *stepval;
+  CONSTANT *initval;
+  CONSTANT *limitval;
+  CONSTANT *stepval;
 } IDOINFO;
 
 typedef struct AEXPR {
   int op;
-  CONST *lop;
-  CONST *rop;
+  CONSTANT *lop;
+  CONSTANT *rop;
 } AEXPR;
 
-struct CONST {
+struct CONSTANT {
   char id;
-  CONST *next;
-  CONST *subc;
+  CONSTANT *next;
+  CONSTANT *subc;
   ISZ_T repeatc;
   SPTR sptr;
   SPTR mbr; /* will be the sptr of the member when the initializer is an IDENT
@@ -429,8 +432,8 @@ typedef struct {  /* STRUCTURE stack entries */
   int sptr;       /* Sym ptr to field name list having this structure */
   int dtype;      /* Pointer to structure dtype */
   int last;       /* last member; updated by link_members */
-  CONST *ict_beg; /* Initializer Constant Tree begin */
-  CONST *ict_end; /* Initializer Constant Tree end */
+  CONSTANT *ict_beg; /* Initializer Constant Tree begin */
+  CONSTANT *ict_end; /* Initializer Constant Tree end */
 } STSK;
 /* access entries in STRUCTURE stack; 0 ==> top of stack, 1 ==> 1 back, etc. */
 #define STSK_ENT(i) sem.stsk_base[sem.stsk_depth - (i)-1]
@@ -737,7 +740,7 @@ extern INT cast_types[NTYPE][2][2];
 #define DPSCON(a) ad2ilm(IM_DPSCON, a)
 #define DPNULL ad1ilm(IM_DPNULL)
 
-void dmp_const(CONST *acl, int indent);
+void dmp_const(CONSTANT *acl, int indent);
 
 /*  declare external functions called only from within semant: */
 
@@ -809,10 +812,10 @@ void dmpilms(void);
 void dumpilms(void);
 #endif
 ILM_T *save_ilms(int);
-void dinit(VAR *ivl, CONST *ict); /* dinit.c */
+void dinit(VAR *ivl, CONSTANT *ict); /* dinit.c */
 bool dinit_ok(int);
 void dmp_ivl(VAR *, FILE *);
-void dmp_ict(CONST *, FILE *);
+void dmp_ict(CONSTANT *, FILE *);
 void semfin(); /* semfin.c */
 int mklogopnd();
 int ref_based_object(int);

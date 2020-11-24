@@ -40,7 +40,7 @@
 #include "upper.h"
 #include "semant.h"
 #include "dwarf2.h"
-#include "direct.h"
+#include "flang_direct.h"
 #include "expand.h"
 #include "scope.h"
 #include <stdbool.h>

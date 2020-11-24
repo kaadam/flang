@@ -88,6 +88,7 @@ set(INCLUDE_DIRS
   ${FLANG_SOURCE_DIR}/lib/scutil
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
+  # TODO: fix target specific include directories /machreg.h/
   ${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_ARCHITECTURE}-${TARGET_OS}
   ${UTILS_SYMTAB_BIN_DIR}        # Symbol table headers
   ${UTILS_ILI_BIN_DIR}           # ILI IR headers
@@ -134,7 +135,7 @@ target_link_libraries(flang2
   scutil
   )
 
-if (NOT MSVC)
+if (NOT WIN32)
   target_link_libraries(flang2 PRIVATE m)
 endif()
 

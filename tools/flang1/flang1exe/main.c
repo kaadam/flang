@@ -30,7 +30,7 @@
 #include "dbg_out.h"
 #include "ccffinfo.h"
 #include "x86.h"
-#include "direct.h"
+#include "flang_direct.h""
 #include "optimize.h"
 #include "transfrm.h"
 #include "extern.h"

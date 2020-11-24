@@ -24,7 +24,7 @@
 #include "extern.h"
 #include "commopt.h"
 #include "rte.h"
-#include "direct.h"
+#include "flang_direct.h"
 #include "rtlRtns.h"
 
 static void generate_forall(int);

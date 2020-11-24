@@ -7,6 +7,8 @@
 
 /* clang-format off */
 
+
+
 /* must include ent3f.h AFTER io3f.h */
 #include "io3f.h"
 #include "ent3f.h"
@@ -20,6 +22,10 @@ void ENT3F(FSYNC, fsync)(lu) int *lu;
 
   f = __getfile3f(*lu);
   if (f)
+#ifndef _WIN32
     fsync(__io_getfd(f));
+#else
+    fflush(f);
+#endif
   return;
 }

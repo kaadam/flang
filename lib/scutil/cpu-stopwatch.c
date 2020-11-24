@@ -10,20 +10,53 @@
  *  Return the elapsed user+system CPU time in milliseconds
  *  since the most recent call.  Very much not thread-safe.
  */
-
+#if defined (_WIN32)
+#include <windows.h>
+#else
 #include <sys/times.h>
 #include <unistd.h>
+#endif
 #include "scutil.h"
 
 unsigned long
 get_rutime(void)
 {
+static unsigned long last = 0;
+unsigned long now, elapsed;
+
+#if defined (_WIN32)
+//TODO: using higher resolution counter?
+
+now = GetTickCount();
+
+elapsed = now - last;
+last = now;
+
+/*
+static LARGE_INTEGER last = 0;
+LARGE_INTEGER now, elapsed;
+LARGE_INTEGER frequency;
+
+QueryPerformanceFrequency(&frequency); 
+QueryPerformanceCounter(&now);
+
+elapsed.QuadPart = now.QuadPart - last.QuadPart;
+
+//
+// We now have the elapsed number of ticks, along with the
+// number of ticks-per-second. We use these values
+// to convert to the number of elapsed microseconds.
+// To guard against loss-of-precision, we convert
+// to microseconds *before* dividing by ticks-per-second.
+//
+elapsed.QuadPart *= 1000000;
+elapsed.QuadPart /= freq.QuadPart;
+*/
+#else
   static long ticks_per_second = -1;
-  static unsigned long last = 0;
 
   struct tms tms;
-  unsigned long now, elapsed;
-
+ 
   /* Initialize ticks_per_second. */
 #ifdef _SC_CLK_TCK
   if (ticks_per_second <= 0)
@@ -39,5 +72,6 @@ get_rutime(void)
 
   elapsed = now - last;
   last = now;
+#endif
   return elapsed;
 }

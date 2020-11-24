@@ -17,6 +17,10 @@
 #include "fioMacros.h"
 #include <stdioInterf.h>
 
+#ifdef _WIN32
+#define open _open
+#endif
+
 #if !defined(FD_SETSIZE)
 #define FD_SETSIZE 1024
 #endif
@@ -71,10 +75,14 @@ __fort_par_open(char *fn, char *par)
     } else if (strncmp(p, "trunc", 5) == 0) {
       p += 5;
       nflags |= O_TRUNC;
-    } else if (strncmp(p, "sync", 4) == 0) {
+    }
+// On Windows O_SYNC is not defined, but we could use CreateFile function as a workaround with FILE_FLAG_WRITE_THROUGH.
+#ifndef _WIN32
+     else if (strncmp(p, "sync", 4) == 0) {
       p += 4;
       nflags |= O_SYNC;
     }
+#endif
     while ((*p != '\0') && (*p != ',')) {
       p++;
     }

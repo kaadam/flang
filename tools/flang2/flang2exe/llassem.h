@@ -254,6 +254,8 @@ int add_member_for_llvm(int, int, DTYPE, ISZ_T);
 LL_Type *update_llvm_typedef(DTYPE dtype, int sptr, int rank);
 int llvm_get_unique_sym(void);
 void align_func(void);
+//TODO missing declaration of dllexport_mod
+void dllexport_mod(SPTR modu);
 void put_global(char *name);
 void put_func_name(int sptr);
 void put_type(int sptr);

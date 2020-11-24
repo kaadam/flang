@@ -5,13 +5,15 @@
  *
  */
 
+#ifndef _WIN32 || _WIN64
 #include <sys/signal.h>
+#else
+#include <signal.h>
+#define write _write
+
+#endif
 #include "stdioInterf.h"
 #include "fioMacros.h"
-
-#if defined(WIN32) || defined(WIN64)
-#define write _write
-#endif
 
 extern char *__fort_getopt(char *);
 
@@ -21,6 +23,7 @@ struct sigs {
   int sig;   /* signal value */
   char *str; /* message string */
 };
+#ifndef _WIN32
 
 static struct sigs sigs[] = {
     {SIGHUP, "hangup"},
@@ -57,6 +60,19 @@ static struct sigs sigs[] = {
     {0, NULL} /* end of list */
 };
 
+#else
+static struct sigs sigs[] = {
+    {SIGABRT, "abnormal termination"},
+    {SIGFPE, "floting-point error"},
+    {SIGILL, "illegal instruction"},
+    {SIGINT, "interrupt"},
+    {SIGSEGV, "segmentation violation"},
+    {SIGTERM, "termination request"},
+    {0, NULL} /* end of list */
+};
+
+#endif
+
 /* print signal message */
 
 void __fort_psignal(lcpu, s) int lcpu;
@@ -86,7 +102,7 @@ static void sighand(s) int s;
 
   lcpu = __fort_myprocnum();
   __fort_psignal(lcpu, s); /* print message */
-#if !defined(WIN64) && !defined(WIN32)
+#if !defined(_WIN64) && !defined(_WIN32)
   sleep(1); /* wait for message to clear */
 #endif
   __fort_abort(NULL); /* abort */

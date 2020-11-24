@@ -20,6 +20,12 @@
 extern char *__fort_getopt();
 extern void __fort_gettb();
 
+#ifdef _WIN32
+void __fort_gettb(t) struct tb *t;
+{
+}
+#endif
+
 static struct tb tb0 = {/* stats at beginning of program */
                         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ""};

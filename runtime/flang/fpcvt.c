@@ -30,9 +30,12 @@ union ieee {
   } v;
   int i[2];
 };
-
+// TODO: winnt.h -> typedef int INT, typedef unsigned int UINT are defined
+#ifndef _WIN32
 typedef long INT;
 typedef unsigned long UINT;
+#endif
+
 typedef double IEEE64;
 typedef enum { ZERO, NIL, NORMAL, BIG, INFIN, NAN, DIVZ, SUBNORMAL } VAL;
 typedef struct {

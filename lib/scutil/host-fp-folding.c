@@ -71,7 +71,8 @@ configure_denormals(bool denorms_are_zeros, bool flush_to_zero)
   fenv_t fenv;
   if (fegetenv(&fenv) != 0)
     fprintf(stderr, "fegetenv() failed: %s\n", strerror(errno));
-#ifdef __x86_64__
+//TODO
+#if defined(__x86_64__) && defined(__linux_)
   fenv.__mxcsr &= ~0x0040;
   if (denorms_are_zeros)
     fenv.__mxcsr |= 0x0040;

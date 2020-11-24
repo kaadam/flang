@@ -9,10 +9,9 @@
 
 /*	sleep3f.c - Implements LIB3F sleep subprogram.  */
 
-#include <unistd.h>
 #include "ent3f.h"
 
-#if defined(WIN64) || defined(WIN32)
+#if defined(WIN64) || defined(_WIN32)
 
 #include <windows.h>
 
@@ -21,6 +20,9 @@ void ENT3F(SLEEP, sleep)(t) unsigned int *t;
   Sleep(1000 * (*t)); /* MS Sleep() is in terms of milliseconds */
 }
 #else
+
+#include <unistd.h>
+
 void ENT3F(SLEEP, sleep)(t) unsigned int *t;
 {
   sleep(*t);

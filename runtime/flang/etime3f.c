@@ -14,7 +14,7 @@
 /* assumes the Unix times system call */
 
 /* Not implemented for WINNT */
-
+#ifndef _WIN32
 #include <unistd.h>
 #define _LIBC_LIMITS_H_
 #include <sys/types.h>
@@ -35,4 +35,13 @@ float ENT3F(ETIME, etime)(float *tarray)
   tarray[1] = ((float)b.tms_stime) * inv_ticks;
   return (tarray[0] + tarray[1]);
 }
+#else
 
+float ENT3F(ETIME, etime)(float *tarray)
+{
+  // TODO: add implementation to get CPU system/user time.
+ tarray[0] = 0;
+ tarray[1] = 0; 
+ return (tarray[0] + tarray[1]);
+}
+#endif

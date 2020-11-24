@@ -258,8 +258,9 @@ void parse_init(void);
 
 void fpp(void); /* fpp.c */
 
-#if defined(HOST_WIN)
+#if defined(HOST_WIN) || defined(_WIN32)
 #define snprintf _snprintf
 #endif
 
 #endif /* FE_GBLDEFS_H */
+ 

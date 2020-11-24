@@ -9,10 +9,9 @@
 
 /*	sleep3f.c - Implements DFPORT SLEEPQQ subprogram.  */
 
-#include <unistd.h>
 #include "ent3f.h"
 
-#if defined(WIN64) || defined(WIN32)
+#if defined(WIN64) || defined(_WIN32)
 
 #include <windows.h>
 
@@ -21,6 +20,9 @@ void ENT3F(SLEEPQQ, sleepqq)(t) unsigned int *t;
   Sleep(*t); /* MS Sleep() is in terms of milliseconds */
 }
 #else
+
+#include <unistd.h>
+
 void ENT3F(SLEEPQQ, sleepqq)(t) unsigned int *t;
 {
   sleep((*t) / 1000);

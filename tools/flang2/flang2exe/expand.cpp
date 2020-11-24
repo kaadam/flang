@@ -2525,9 +2525,10 @@ create_ref(SPTR sym, int *pnmex, int basenm, int baseilix, int *pclen,
            * and then add the offset of this member.
            */
           int s;
+          // TODO: change the return type of this funtion to use SPTR?
           s = mk_impsym(MIDNUMG(sym));
-          nmex = addnme(NT_VAR, s, 0, (INT)0);
-          ili1 = ad_acon(s, (INT)0);
+          nmex = addnme(NT_VAR, (SPTR)s, 0, (INT)0);
+          ili1 = ad_acon((SPTR)s, (INT)0);
           ili1 = ad2ili(IL_LDA, ili1, nmex);
           ili2 = ad_aconi(ADDRESSG(sym));
           ilix = ad3ili(IL_AADD, ili1, ili2, 0);
@@ -2576,8 +2577,8 @@ create_ref(SPTR sym, int *pnmex, int basenm, int baseilix, int *pclen,
       /* generate dll import address for type descriptor */
       int asym, anme;
       asym = mk_impsym(sym);
-      ili1 = ad_acon(asym, 0);
-      anme = addnme(NT_VAR, asym, 0, (INT)0);
+      ili1 = ad_acon((SPTR)asym, 0);
+      anme = addnme(NT_VAR, (SPTR)asym, 0, (INT)0);
       ilix = ad2ili(IL_LDA, ili1, anme);
     } else
 #endif /* PGF90 && TARGET_WIN */
@@ -2675,8 +2676,8 @@ create_ref(SPTR sym, int *pnmex, int basenm, int baseilix, int *pclen,
        */
       int s;
       s = mk_impsym(MIDNUMG(sym));
-      nmex = addnme(NT_VAR, s, 0, (INT)0);
-      ili1 = ad_acon(s, (INT)0);
+      nmex = addnme(NT_VAR, (SPTR)s, 0, (INT)0);
+      ili1 = ad_acon((SPTR)s, (INT)0);
       ili1 = ad2ili(IL_LDA, ili1, nmex);
       ili2 = ad_aconi(ADDRESSG(sym));
       ilix = ad3ili(IL_AADD, ili1, ili2, 0);
@@ -2686,9 +2687,9 @@ create_ref(SPTR sym, int *pnmex, int basenm, int baseilix, int *pclen,
        * are generated.  Otherwise, create 'via ptr' (indirection) nmes.
        */
       if (XBIT(125, 0x20))
-        nmex = addnme(NT_VAR, sym, 0, (INT)0);
+        nmex = addnme(NT_VAR, (SPTR)sym, 0, (INT)0);
       else
-        nmex = addnme(NT_IND, 0, nmex, (INT)0);
+        nmex = addnme(NT_IND, SPTR_NULL, nmex, (INT)0);
     }
 #endif
     else if (SCG(sym) == SC_CMBLK && IS_THREAD_TP(sym)) {

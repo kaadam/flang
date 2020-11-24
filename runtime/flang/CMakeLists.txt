@@ -8,7 +8,8 @@ enable_language(C ASM Fortran) # Enable assembly and Fortran
 
 SET(ASM_OPTIONS "-DLINUX_ELF")
 SET(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}" )
-if (NOT MSVC)
+if (NOT WIN32)
+#if (NOT MSVC)
   SET(CMAKE_SHARED_LINKER_FLAGS "-no-flang-libs")
 else ()
   SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -no-flang-libs")
@@ -463,7 +464,9 @@ FOREACH(file ${FTN_SUPPORT_DESC_DEP})
     LIST(APPEND FTN_SUPPORT_I8 ${I8_FILE})
 ENDFOREACH(file)
 
+
 LIST(APPEND FTN_SUPPORT_DESC_DEP ieee_arithmetic.F95 ieee_exceptions.F95 norm2_1.F95)
+#LIST(APPEND FTN_SUPPORT_DESC_DEP ieee_arithmetic.F95 ieee_exceptions.F95)
 LIST(APPEND FTN_SUPPORT_I8 
 "${I8_FILES_DIR}/ieee_arithmetic.F95"
 "${I8_FILES_DIR}/ieee_exceptions.F95"
@@ -483,13 +486,13 @@ set_target_properties(flang_static
   PROPERTIES
   Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/include-static
 )
-if (MSVC)
+if (WIN32)
 set_property(TARGET flang_static PROPERTY OUTPUT_NAME libflang)
 else()
 set_property(TARGET flang_static PROPERTY OUTPUT_NAME flang)
 endif()
 
-set(SHARED_LIBRARY TRUE)
+set(SHARED_LIBRARY FALSE)
 add_flang_library(flang_shared
   ${FTN_INTRINSICS_DESC_INDEP}
   ${FTN_INTRINSICS_DESC_DEP}
@@ -514,14 +517,14 @@ add_dependencies(flang_shared flang_static)
 target_link_libraries(flang_shared flangrti_shared)
 
 # Resolve symbols against libm and librt
-if (NOT MSVC)
+if (NOT WIN32)
   target_link_libraries(flang_shared m rt)
 else()
   set_target_properties(flang_shared PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
 set(SHARED_LIBRARY FALSE)
-
+ 
 set_property(
   SOURCE ${FTN_INTRINSICS_DESC_INDEP} ${FTN_INTRINSICS_DESC_DEP} ${SHARED_SOURCES}
   PROPERTY COMPILE_DEFINITIONS 
@@ -573,6 +576,67 @@ set_source_files_properties(
   COMPILE_FLAGS "-ffast-math"
   )
 
+# TODO: https://gitlab.kitware.com/cmake/cmake/-/issues/19220
+if (NOT CMAKE_GENERATOR STREQUAL "Ninja")
+
+## CMake does not handle module dependencies between Fortran files,
+## we need to help it
+
+# State the module that the source is producing
+set_source_files_properties(
+  iso_c_bind.F95
+  PROPERTIES
+  OBJECT_OUTPUTS ${CMAKE_Fortran_MODULE_DIRECTORY}/iso_c_binding.mod
+  )
+
+# State a dependency on the module
+set_source_files_properties(
+  ieee_arithmetic.F95
+  PROPERTIES
+  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/iso_c_binding.mod
+  OBJECT_OUTPUTS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_arithmetic.mod
+  )
+
+set_source_files_properties(
+  ieee_exceptions.F95
+  PROPERTIES
+  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/iso_c_binding.mod
+  OBJECT_OUTPUTS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_exceptions.mod
+  )
+
+# State a dependency on the module
+set_source_files_properties(
+  ${I8_FILES_DIR}/ieee_arithmetic.F95
+  PROPERTIES 
+  COMPILE_DEFINITIONS DESC_I8
+  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/iso_c_binding.mod
+  OBJECT_OUTPUTS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_arithmetic_la.mod
+  )
+
+set_source_files_properties(
+  ${I8_FILES_DIR}/ieee_exceptions.F95
+  PROPERTIES 
+  COMPILE_DEFINITIONS DESC_I8
+  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/iso_c_binding.mod
+  OBJECT_OUTPUTS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_exceptions_la.mod
+  )
+
+set_source_files_properties(
+  norm2_1.F95
+  PROPERTIES 
+  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_arithmetic.mod
+  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_exceptions.mod
+)
+
+set_source_files_properties(
+   ${I8_FILES_DIR}/norm2_1.F95
+  PROPERTIES 
+  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_arithmetic_la.mod
+  OBJECT_DEPENDS ${CMAKE_Fortran_MODULE_DIRECTORY}/ieee_exceptions_la.mod
+)
+
+endif()
+
 set_target_properties(flang_static flang_shared
   PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${FLANG_RTE_LIB_DIR}
@@ -602,12 +666,13 @@ add_dependencies(flang_shared
   flang2
   )
 
-if (NOT MSVC)
+if (NOT WIN32)
   target_compile_options(flang_static PRIVATE -fPIC)
   target_compile_options(flang_shared PRIVATE -fPIC)
 else()
   set_target_properties(flang_static PROPERTIES LINKER_LANGUAGE CXX)
   set_target_properties(flang_shared PROPERTIES LINKER_LANGUAGE CXX)
+  #target_compile_options(flang_shared PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-DPGDLL>)
 endif()
 
 target_compile_options(flang_static PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-Mreentrant>)

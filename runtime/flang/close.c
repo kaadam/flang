@@ -13,10 +13,12 @@
 
 #include <errno.h>
 #include "global.h"
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include "stdioInterf.h"
 
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 #define unlink _unlink
 #define access _access
 #endif

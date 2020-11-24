@@ -16,10 +16,11 @@
 
 #include <string.h>
 #include <time.h>
-#if !defined(HOST_WIN)
+#if !defined(_WIN32)
 #include <unistd.h>
 #endif
 #include "symtab.h"
+#include <direct.h> // _getcwd()
 #ifndef FE90
 #include "ilm.h"
 #endif
@@ -340,7 +341,11 @@ ccff_open(char *ccff_filename, char *srcfile)
   }
   cwdlen = 100;
   cwd = (char *)malloc(cwdlen);
+#ifndef _WIN32
   while ((void *)getcwd(cwd, cwdlen - 1) == NULL) {
+#else
+  while ((void *)getcwd(cwd, cwdlen - 1) == NULL) {
+#endif
     cwdlen *= 2;
     cwd = (char *)realloc(cwd, cwdlen);
   }

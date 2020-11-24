@@ -335,8 +335,8 @@ The form of the structure stack is:
         int    sptr;   
         int    dtype; 
 	int    last;
-        CONST *ict_beg; 
-        CONST *ict_end;
+        CONSTANT *ict_beg; 
+        CONSTANT *ict_end;
     } STSK;
 .CE
 .BS
@@ -393,8 +393,8 @@ The format of nodes is defined by the following C structure declaration:
 .CS
 
     struct const {
-        struct const *next;
-        struct const *subc;
+        struct CONSTANT *next;
+        struct CONSTANT *subc;
         INT           conval;
         INT           repeat;
         int           sptr;
