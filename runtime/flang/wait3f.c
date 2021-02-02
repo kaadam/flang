@@ -9,7 +9,7 @@
 
 /*	wait3f.c - Implements LIB3F wait subprogram.  */
 
-#ifndef _WIN32
+#if !defined(_WIN32)
 
 #include <sys/types.h>
 #include <sys/wait.h>

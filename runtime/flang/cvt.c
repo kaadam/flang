@@ -5,7 +5,7 @@
  *
  */
 
-#ifndef WIN64
+#if !defined(_WIN64)
 #include <stdlib.h>
 #include <string.h>
 #endif

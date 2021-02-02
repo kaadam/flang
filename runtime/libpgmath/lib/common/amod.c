@@ -7,7 +7,8 @@
 
 #include "mthdecls.h"
 
-#ifndef WIN64
+// TODO: Check
+#if !defined(_WIN64)
 float
 __mth_i_amod(float f, float g)
 {

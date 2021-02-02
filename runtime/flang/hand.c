@@ -5,15 +5,15 @@
  *
  */
 
-#ifndef _WIN32 || _WIN64
+#include "stdioInterf.h"
+#include "fioMacros.h"
+
+#if !defined(_WIN32)
 #include <sys/signal.h>
 #else
 #include <signal.h>
 #define write _write
-
 #endif
-#include "stdioInterf.h"
-#include "fioMacros.h"
 
 extern char *__fort_getopt(char *);
 
@@ -102,7 +102,7 @@ static void sighand(s) int s;
 
   lcpu = __fort_myprocnum();
   __fort_psignal(lcpu, s); /* print message */
-#if !defined(_WIN64) && !defined(_WIN32)
+#if !defined(WIN32)
   sleep(1); /* wait for message to clear */
 #endif
   __fort_abort(NULL); /* abort */

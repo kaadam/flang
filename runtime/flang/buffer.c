@@ -8,14 +8,11 @@
 /** \file
  * \brief FIXME
  */
-// TODO: Check revisit WINNT macro
-#if !defined(PARAMID) && !defined(WINNT)
-#include <fcntl.h>
-#endif
+
 #include "stdioInterf.h"
 #include "fioMacros.h"
 
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32)
 #include <fcntl.h>
 #define write _write
 #define creat _creat

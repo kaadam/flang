@@ -68,10 +68,11 @@ static struct {
 /* common blocks containing values for inlined number_of_processors()
    and my_processor() functions */
 
-#if defined(_WIN64) || defined(_WIN32)
+//TODO: Check
+#if defined(_WIN32)
 WIN_IMP __INT_T ENTCOMN(NP, np)[];
 WIN_IMP __INT_T ENTCOMN(ME, me)[];
-#elif defined(C90) || defined(WINNT)
+#elif defined(C90)
 __INT_T ENTCOMN(NP, np)[1];
 __INT_T ENTCOMN(ME, me)[1];
 #else
@@ -79,7 +80,7 @@ extern __INT_T ENTCOMN(NP, np)[];
 extern __INT_T ENTCOMN(ME, me)[];
 #endif
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32)
 #define write _write
 #endif
 
@@ -99,8 +100,9 @@ __fort_ncpus()
   return __fort_tcpus;
 }
 
-#if defined(WINNT)
-#if !defined(_WIN64) && !defined(_WIN32)
+#if defined(_WIN32)
+//TODO: Check it again
+#if !defined(_WIN64)
 __INT_T *CORMEM;
 
 /* special argument pointer access routines */
@@ -162,7 +164,7 @@ __get_fort_np_addr(void)
 {
   return (char *)ENTCOMN(NP, np);
 }
-#endif /* !WIN64 || !WIN32 */
+#endif /* !_WIN32 */
 
 /* access routines for data shared between windows dlls */
 
@@ -310,7 +312,7 @@ __set_fort_tids_elem(int idx, int val)
   __fort_tids[idx] = val;
 }
 
-#endif /* WINNT */
+#endif /* _WIN32 */
 
 int
 __fort_getioproc()
@@ -381,7 +383,7 @@ __fort_initarg()
   }
 #if   defined(TARGET_OSX)
   env = *_NSGetEnviron();
-#elif defined(__WIN32)
+#elif defined(_WIN32)
   env = __io_environ();
 #else
   env = environ;

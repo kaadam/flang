@@ -88,13 +88,13 @@ __fortio_scratch_name(char *filename, int unit)
   strcpy(filename, nm);
   if (nm)
     free(nm);
-#else /*WINNT*/
+#else /* _WIN32 */
 
   nm = __io_tempnam((char *)0, "FTN");
   strcpy(filename, nm);
   if (nm)
     free(nm);
 
-#endif /*WINNT*/
+#endif /* _WIN32 */
 
 }
