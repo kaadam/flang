@@ -7,12 +7,12 @@
 
 #include "mthdecls.h"
 
-#ifndef WIN64
+#if !defined(_WIN64)
 double
 __mth_i_dmod(double f, double g)
 {
 /* Need to do this way until a bug in the Win64 fmod routine is fixed */
-#if defined(WIN64)
+#if defined(_WIN64)
   return __fmth_i_dmod(f, g);
 #else
   return fmod(f, g);
