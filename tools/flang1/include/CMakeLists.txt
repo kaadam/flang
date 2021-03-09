@@ -7,6 +7,12 @@
 
 # Generate platform header
 
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
+
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/platform.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/platform.h
@@ -20,7 +26,7 @@ add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/errmsgdf.h
          ${CMAKE_CURRENT_BINARY_DIR}/errmsg.n
          ${FLANG1_DOC_BIN_DIR}/errmsg.rst
-  COMMAND ${CMAKE_BINARY_DIR}/bin/errmsggen ${FLANG_INCLUDE_DIR}/Error/errmsg-in.n
+  COMMAND errmsggen ${FLANG_INCLUDE_DIR}/Error/errmsg-in.n
                                             ${FLANG_INCLUDE_DIR}/Error/errmsg-common.n
                                             ${FLANG_INCLUDE_DIR}/Error/errmsg-ipa.n
                                          -o ${CMAKE_CURRENT_BINARY_DIR}/errmsgdf.h

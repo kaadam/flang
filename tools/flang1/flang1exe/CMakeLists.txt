@@ -114,9 +114,11 @@ set (COMPILE_OPTS
     )
 endif()
 
+if (NOT CMAKE_CROSSCOMPILING)
 add_flang_executable(flang1
   ${SOURCES} ${SHARED_SOURCES}
   )
+  EXPORT(TARGETS flang1 APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
 
 target_compile_definitions(flang1
   PRIVATE
@@ -132,6 +134,8 @@ add_dependencies(flang1
   gen_frontend_parsetable    # Parser headers
   )
 
+endif()
+
 if (FLANG_INCLUDE_DOCS)
   file(MAKE_DIRECTORY ${FLANG1_DOC_BIN_DIR})
   add_dependencies(flang1
@@ -141,6 +145,7 @@ if (FLANG_INCLUDE_DOCS)
   configure_file(${FLANG1_DOC_SRC_DIR}/howto_intrinsics.rst ${FLANG1_DOC_BIN_DIR}/howto_intrinsics.rst COPYONLY)
 endif()
 
+if (NOT CMAKE_CROSSCOMPILING)
 target_include_directories(flang1
   PRIVATE
   ${INCLUDE_DIRS}
@@ -164,6 +169,7 @@ endif()
 # Install flang1 executable
 install(TARGETS flang1
   RUNTIME DESTINATION bin)
+endif()
 
 # Local Variables:
 # mode: cmake

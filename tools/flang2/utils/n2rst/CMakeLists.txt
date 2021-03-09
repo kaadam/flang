@@ -4,15 +4,25 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #
 
-add_executable(n2rst
-  ${UTILS_SHARED_DIR}/n2rst.cpp
-  ${UTILS_COMMON_DIR}/utils.cpp
-)
+# when crosscompiling import the executable targets from a file
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
 
-target_include_directories(n2rst
-  PRIVATE
-  ${UTILS_COMMON_DIR}
+if(NOT CMAKE_CROSSCOMPILING)
+  add_executable(n2rst
+    ${UTILS_SHARED_DIR}/n2rst.cpp
+    ${UTILS_COMMON_DIR}/utils.cpp
   )
+  EXPORT(TARGETS n2rst APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
+
+  target_include_directories(n2rst
+    PRIVATE
+    ${UTILS_COMMON_DIR}
+    )
+endif()
 
 # Convert nroff documentation to Sphinx format.
 
@@ -32,7 +42,7 @@ add_custom_command(
          ${FLANG2_DOC_BIN_DIR}/register.rst
          ${FLANG2_DOC_BIN_DIR}/xflag.rst
          ${FLANG2_DOC_BIN_DIR}/xref.rst
-  COMMAND ${CMAKE_BINARY_DIR}/bin/n2rst -v ${FLANG2_DOC_SRC_DIR}/coding.n
+  COMMAND n2rst -v ${FLANG2_DOC_SRC_DIR}/coding.n
                                            ${FLANG2_DOC_SRC_DIR}/controller.n
                                            ${FLANG2_DOC_SRC_DIR}/dinit.n
                                            ${FLANG2_DOC_SRC_DIR}/error.n

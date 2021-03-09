@@ -414,6 +414,13 @@ SET(FTN_SUPPORT_DESC_DEP
   util.c
   )
 
+# when crosscompiling import the executable targets from a file
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
+
 set(I8_FILES_DIR I8_sources)
 separate_arguments(SEPARATED_CMAKE_Fortran_FLAGS NATIVE_COMMAND ${CMAKE_Fortran_FLAGS})
 

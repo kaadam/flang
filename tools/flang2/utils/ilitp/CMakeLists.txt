@@ -4,32 +4,43 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #
 
-add_executable(ilitp
-  ilitp.cpp
-  ${UTILS_COMMON_DIR}/utils.cpp
-  )
+# when crosscompiling import the executable targets from a file
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
 
-target_compile_definitions(ilitp
-  PRIVATE
-  ILITP_UTIL
-  PGF90=1
-  TARGET_X86
-  TARGET_X8664
+if (NOT CMAKE_CROSSCOMPILING)
+  add_executable(ilitp
+    ilitp.cpp
+    ${UTILS_COMMON_DIR}/utils.cpp
   )
+  EXPORT(TARGETS ilitp APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
 
-target_include_directories(ilitp
-  PRIVATE
-  ${TOOLS_SHARED_DIR}
-  ${FLANG2_SRC_DIR}
-  ${FLANG_INCLUDE_DIR}
-  ${UTILS_COMMON_DIR}
-  ) 
+  target_compile_definitions(ilitp
+    PRIVATE
+    ILITP_UTIL
+    PGF90=1
+    TARGET_X86
+    TARGET_X8664
+    )
+
+  target_include_directories(ilitp
+    PRIVATE
+    ${TOOLS_SHARED_DIR}
+    ${FLANG2_SRC_DIR}
+    ${FLANG_INCLUDE_DIR}
+    ${UTILS_COMMON_DIR}
+    )
+endif()
+
 
 # Generate ILI tables
 
 add_custom_command( 
   OUTPUT ${UTILS_ILI_BIN_DIR}/schinfo.h ${UTILS_ILI_BIN_DIR}/ilinfodf.h ${UTILS_ILI_BIN_DIR}/iliatt.h
-  COMMAND ${CMAKE_BINARY_DIR}/bin/ilitp -I${UTILS_ILI_DIR} ${ARCH_DEP_ILI_DIR}/ilitp.n
+  COMMAND ilitp -I${UTILS_ILI_DIR} ${ARCH_DEP_ILI_DIR}/ilitp.n
   DEPENDS ilitp
           ${UTILS_ILI_DIR}/ilitp_atomic.n
           ${ARCH_DEP_ILI_DIR}/ilitp.n

@@ -4,7 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #
 
-add_executable(errmsggen
-  errmsg.cpp
+if (NOT CMAKE_CROSSCOMPILING)
+  add_executable(errmsggen
+    errmsg.cpp
   )
-
+  EXPORT(TARGETS errmsggen APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
+endif()

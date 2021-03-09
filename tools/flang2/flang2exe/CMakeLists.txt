@@ -89,7 +89,7 @@ set(INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   # TODO: fix target specific include directories /machreg.h/
-  ${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_ARCHITECTURE}-${TARGET_OS}
+  ${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_ARCHITECTURE}-Linux
   ${UTILS_SYMTAB_BIN_DIR}        # Symbol table headers
   ${UTILS_ILI_BIN_DIR}           # ILI IR headers
   ${UTILS_ILM_BIN_DIR}           # ILM IR headers
@@ -115,6 +115,8 @@ foreach(FILE ${SHARED_SOURCES})
   set(SHARED_CPP_SOURCES ${SHARED_CPP_SOURCES} ${TOFILE}pp)
 endforeach()
 
+if (NOT CMAKE_CROSSCOMPILING)
+
 add_flang_executable(flang2
   ${SOURCES} ${SHARED_CPP_SOURCES}
   )
@@ -135,10 +137,15 @@ target_link_libraries(flang2
   scutil
   )
 
+EXPORT(TARGETS flang2 APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
+
+endif()
+
 if (NOT WIN32)
   target_link_libraries(flang2 PRIVATE m)
 endif()
 
+if (NOT CMAKE_CROSSCOMPILING)
 add_dependencies(flang2
   gen_backend_error_headers # Error message headers
   gen_backend_symtab        # Symbol table headers
@@ -148,6 +155,7 @@ add_dependencies(flang2
   gen_backend_machar        # Machar headers
   gen_backend_upper         # `Upper' headers
   )
+endif()
 
 if (FLANG_INCLUDE_DOCS)
   add_dependencies(flang2
@@ -155,6 +163,7 @@ if (FLANG_INCLUDE_DOCS)
     )
 endif()
 
+if(NOT CMAKE_CROSSCOMPILING)
 target_include_directories(flang2
   PRIVATE
   ${INCLUDE_DIRS}
@@ -163,6 +172,7 @@ target_include_directories(flang2
 # Install flang2 executable
 install(TARGETS flang2
   RUNTIME DESTINATION bin)
+endif()
 
 # Local Variables:
 # mode: cmake

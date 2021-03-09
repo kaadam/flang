@@ -6,17 +6,29 @@
 
 # Build lr and prodstr
 
-add_executable(lr
-  lrutils.c
-  prstab1.c
-  prstab2.c
-  prstab3.c
-  prstab4.c
-  )
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
 
-add_executable(prodstr
+if (NOT CMAKE_CROSSCOMPILING)
+  add_executable(lr
+    lrutils.c
+    prstab1.c
+    prstab2.c
+    prstab3.c
+    prstab4.c
+    )
+  EXPORT(TARGETS lr APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
+endif()
+
+if (NOT CMAKE_CROSSCOMPILING)
+ add_executable(prodstr
   prodstr.c
   )
+ EXPORT(TARGETS prodstr APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
+endif()
 
 # Generate parse tables
 
@@ -26,8 +38,8 @@ add_custom_command(
   # original directory
   COMMAND ${CMAKE_COMMAND} -E copy ${UTILS_PARSETABLE_DIR}/gram.txt ${UTILS_PARSETABLE_BIN_DIR}
   COMMAND ${CMAKE_COMMAND} -E copy ${UTILS_PARSETABLE_DIR}/gram.tki ${UTILS_PARSETABLE_BIN_DIR}
-  COMMAND ${CMAKE_BINARY_DIR}/bin/lr gram.txt -semant -tokens -list -data -runoff
-  COMMAND ${CMAKE_BINARY_DIR}/bin/prodstr gram.txt
+  COMMAND lr gram.txt -semant -tokens -list -data -runoff
+  COMMAND prodstr gram.txt
   DEPENDS ${UTILS_PARSETABLE_DIR}/gram.tki ${UTILS_PARSETABLE_DIR}/gram.txt
   )
 

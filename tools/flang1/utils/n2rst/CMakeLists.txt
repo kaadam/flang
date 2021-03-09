@@ -4,15 +4,26 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #
 
-add_executable(fen2rst
-  ${UTILS_SHARED_DIR}/n2rst.cpp
-  ${UTILS_COMMON_DIR}/utils.cpp
-)
 
-target_include_directories(fen2rst
-  PRIVATE
-  ${UTILS_COMMON_DIR}
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
+
+if (NOT CMAKE_CROSSCOMPILING)
+  add_executable(fen2rst
+    ${UTILS_SHARED_DIR}/n2rst.cpp
+    ${UTILS_COMMON_DIR}/utils.cpp
   )
+  EXPORT(TARGETS fen2rst APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
+
+  target_include_directories(fen2rst
+    PRIVATE
+    ${UTILS_COMMON_DIR}
+    )
+endif()
+
 
 # Convert nroff documentation to Sphinx format.
 
@@ -33,7 +44,7 @@ add_custom_command(
          ${FLANG1_DOC_BIN_DIR}/scanner.rst
          ${FLANG1_DOC_BIN_DIR}/semant.rst
          ${FLANG1_DOC_BIN_DIR}/transform.rst
-  COMMAND ${CMAKE_BINARY_DIR}/bin/fen2rst -v ${UTILS_AST_DIR}/ast.n
+  COMMAND fen2rst -v ${UTILS_AST_DIR}/ast.n
                                              ${FLANG1_DOC_SRC_DIR}/commopt.n
                                              ${FLANG1_DOC_SRC_DIR}/comms.n
                                              ${FLANG1_DOC_SRC_DIR}/controller.n

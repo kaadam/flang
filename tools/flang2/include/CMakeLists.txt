@@ -13,11 +13,20 @@ configure_file(
 
 # Generate error message headers
 
+# when crosscompiling import the executable targets from a file
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
+
+#  COMMAND ${CMAKE_BINARY_DIR}/bin/errmsggen ${FLANG_INCLUDE_DIR}/Error/errmsg-accel.n
+
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/errmsgdf.h
          ${CMAKE_CURRENT_BINARY_DIR}/new_errmsg.n
          ${FLANG2_DOC_BIN_DIR}/errmsg.rst
-  COMMAND ${CMAKE_BINARY_DIR}/bin/errmsggen ${FLANG_INCLUDE_DIR}/Error/errmsg-accel.n
+  COMMAND errmsggen ${FLANG_INCLUDE_DIR}/Error/errmsg-accel.n
                                             ${FLANG_INCLUDE_DIR}/Error/errmsg-common.n
                                             ${FLANG_INCLUDE_DIR}/Error/errmsg-hammer.n
                                             ${FLANG_INCLUDE_DIR}/Error/errmsg.n

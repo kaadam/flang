@@ -6,6 +6,12 @@
 
 # Generate symbol table headers
 
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
+
 add_custom_command(
   OUTPUT ${UTILS_SYMTAB_BIN_DIR}/symtab.out.n
          ${UTILS_SYMTAB_BIN_DIR}/symtab.h
@@ -59,53 +65,62 @@ add_custom_target(gen_frontend_symini
           ${FLANG1_DOC_BIN_DIR}/symini.rst
   )
 
+if (NOT CMAKE_CROSSCOMPILING)
+  add_executable(fesymutil
+    ${UTILS_SHARED_DIR}/symutil.cpp
+    ${UTILS_COMMON_DIR}/utils.cpp
+    )
+  EXPORT(TARGETS fesymutil APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
 
-add_executable(fesymutil
-  ${UTILS_SHARED_DIR}/symutil.cpp
-  ${UTILS_COMMON_DIR}/utils.cpp
-  )
+  target_include_directories(fesymutil
+    BEFORE
+    PRIVATE
+    ${UTILS_SHARED_DIR}
+    ${FLANG_INCLUDE_DIR}
+    ${UTILS_COMMON_DIR}
+    )
+
+  target_compile_definitions(fesymutil
+    PRIVATE
+    PGF90
+    PGHPF
+    )
+  endif()
 
 add_dependencies(fesymutil gen_frontend_error_headers)
 
-target_include_directories(fesymutil
-  BEFORE
-  PRIVATE
-  ${UTILS_SHARED_DIR}
-  ${FLANG_INCLUDE_DIR}
-  ${UTILS_COMMON_DIR}
-  )
 
 
-target_compile_definitions(fesymutil
-  PRIVATE
-  PGF90
-  PGHPF
-  )
+if (NOT CMAKE_CROSSCOMPILING)
+  add_executable(fesymini
+    ${UTILS_SHARED_DIR}/symacc.c
+    symini.cpp
+    ${UTILS_COMMON_DIR}/utils.cpp
+    )
+  EXPORT(TARGETS fesymini APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
 
-add_executable(fesymini
-  ${UTILS_SHARED_DIR}/symacc.c
-  symini.cpp
-  ${UTILS_COMMON_DIR}/utils.cpp
-  )
+  target_compile_definitions(fesymini
+    PRIVATE
+    PGF90
+    PGHPF
+    UTILSYMTAB
+    )
+
+  target_include_directories(fesymini
+    PRIVATE
+    ${SHARED_UTILS_INCLUDE_DIR}/symtab
+    ${FLANG_INCLUDE_DIR}
+    ${UTILS_SHARED_DIR}
+    ${UTILS_COMMON_DIR}
+    ${UTILS_SYMTAB_BIN_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+endif()
+
 
 add_dependencies(fesymini gen_frontend_symtab)
 
-target_compile_definitions(fesymini
-  PRIVATE
-  PGF90
-  PGHPF
-  UTILSYMTAB
-  )
 
-target_include_directories(fesymini
-  PRIVATE
-  ${SHARED_UTILS_INCLUDE_DIR}/symtab
-  ${FLANG_INCLUDE_DIR}
-  ${UTILS_SHARED_DIR}
-  ${UTILS_COMMON_DIR}
-  ${UTILS_SYMTAB_BIN_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  )
 
 # Local Variables:
 # mode: cmake

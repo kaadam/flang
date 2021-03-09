@@ -4,9 +4,18 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #
 
-add_executable(upperl
-  upperl.c
-  )
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
+
+if(NOT CMAKE_CROSSCOMPILING)
+  add_executable(upperl
+    upperl.c
+    )
+  EXPORT(TARGETS upperl APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
+endif()
 
 # Generate upper tables
 file(STRINGS "${UTILS_UPPER_DIR}/upperilm.in" UPPERILM_H_CONTENTS)

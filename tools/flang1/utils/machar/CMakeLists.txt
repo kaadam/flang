@@ -4,21 +4,31 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #
 
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
+
+if (NOT CMAKE_CROSSCOMPILING)
 add_executable(machar
   ${UTILS_SHARED_DIR}/machar.cpp
   ${UTILS_COMMON_DIR}/utils.cpp
   )
+  EXPORT(TARGETS machar APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
 
-target_include_directories(machar
-  PRIVATE
-  ${FLANG_INCLUDE_DIR}
-  ${UTILS_COMMON_DIR}
-  )
+  target_include_directories(machar
+    PRIVATE
+    ${FLANG_INCLUDE_DIR}
+    ${UTILS_COMMON_DIR}
+    )
 
-target_compile_definitions(machar
-  PRIVATE
-  FE90
-  )
+  target_compile_definitions(machar
+    PRIVATE
+    FE90
+    )
+
+endif()
 
 # Generate Machar headers
 
@@ -26,7 +36,7 @@ add_custom_command(
   OUTPUT ${UTILS_MACHAR_BIN_DIR}/machar.h
          ${UTILS_MACHAR_BIN_DIR}/machardf.h
          ${FLANG1_DOC_BIN_DIR}/machar.rst
-  COMMAND ${CMAKE_BINARY_DIR}/bin/machar ${UTILS_MACHAR_DIR}/machar.n
+  COMMAND machar ${UTILS_MACHAR_DIR}/machar.n
                                          ${UTILS_SYMTAB_BIN_DIR}/symtab.h
                                       -o ${UTILS_MACHAR_BIN_DIR}/machar.h
                                          ${UTILS_MACHAR_BIN_DIR}/machardf.h

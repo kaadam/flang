@@ -6,16 +6,27 @@
 
 add_definitions("-DILMTOOLBUILD")
 
-add_executable(ilmtp
-  ilmtp.cpp
-  ${UTILS_COMMON_DIR}/utils.cpp
-  )
+# when crosscompiling import the executable targets from a file
+IF(CMAKE_CROSSCOMPILING)
+  SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  FILE(TO_CMAKE_PATH "${IMPORT_EXECUTABLES}" IMPORT_PATH_CMAKE)
+  INCLUDE(${IMPORT_PATH_CMAKE}/ImportExecutables.cmake)
+ENDIF(CMAKE_CROSSCOMPILING)
 
-target_include_directories(ilmtp
-  PRIVATE
-  ${UTILS_COMMON_DIR}
-  ${FLANG_TOOLS_DIR}
+if (NOT CMAKE_CROSSCOMPILING)
+  add_executable(ilmtp
+    ilmtp.cpp
+    ${UTILS_COMMON_DIR}/utils.cpp
   )
+  EXPORT(TARGETS ilmtp APPEND FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
+
+  target_include_directories(ilmtp
+    PRIVATE
+    ${UTILS_COMMON_DIR}
+    ${FLANG_TOOLS_DIR}
+    )
+endif()
+
 
 # Generate ILM tables
 
@@ -24,7 +35,7 @@ add_custom_command(
          ${UTILS_ILM_BIN_DIR}/ilmtp.h
          ${UTILS_ILM_BIN_DIR}/ilmtp.n1
          ${FLANG2_DOC_BIN_DIR}/ilmtp.rst
-  COMMAND ${CMAKE_BINARY_DIR}/bin/ilmtp -I${UTILS_ILI_DIR} -l scftn
+  COMMAND ilmtp -I${UTILS_ILI_DIR} -l scftn
                                                  ${ARCH_DEP_ILM_DIR}/ilmtp.n
                                                  ${ARCH_DEP_ILI_DIR}/ilitp.n
                                               -o ${UTILS_ILM_BIN_DIR}/ilmtpdf.h
