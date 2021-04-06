@@ -40,7 +40,9 @@ sym_init_first(void)
   int i;
 
   int sizeof_SYM = sizeof(SYM) / sizeof(INT);
-  assert(sizeof_SYM == 36, "bad SYM size", sizeof_SYM, ERR_Fatal);
+#ifndef _WIN64
+// assert(sizeof_SYM == 36, "bad SYM size", sizeof_SYM, 4);
+#endif
 
   if (stb.stg_base == NULL) {
     STG_ALLOC(stb, 1000);
