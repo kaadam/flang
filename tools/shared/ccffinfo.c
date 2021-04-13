@@ -19,6 +19,7 @@
 #if !defined(HOST_WIN)
 #include <unistd.h>
 #endif
+#include <direct.h>
 #include "symtab.h"
 #ifndef FE90
 #include "ilm.h"

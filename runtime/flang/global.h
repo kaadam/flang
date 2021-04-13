@@ -9,11 +9,21 @@
  * \brief Global definitions and declarations for Fortran I/O library
  */
 
+#include <stdio.h>
 #include "fioMacros.h"
 #include "stdioInterf.h" /* stubbed version of stdio.h */
 #include "cnfg.h" /* declarations for configuration items */
 
 #define GBL_SIZE_T_FORMAT "zu"
+
+#ifdef _WIN32
+#include <Windows.h>
+
+#define INT64 __FLANG_INT64
+#define UINT64 __FLANG_UINT64
+#define INT __FLANG_INT
+#define UINT __FLANG_UINT
+#endif
 
 typedef int DBLINT64[2];
 typedef unsigned int DBLUINT64[2];
@@ -21,6 +31,9 @@ typedef unsigned int DBLUINT64[2];
 /* declarations needed where integer*8 & logical*8 are supported and
  * the natural integer is integer*4 (__BIGINT is __INT4).
  */
+
+typedef int INT64[2];
+typedef unsigned int UINT64[2];
 
 #define I64_MSH(t) t[1]
 #define I64_LSH(t) t[0]
@@ -42,7 +55,10 @@ WIN_MSVCRT_IMP long WIN_CDECL strtol(const char *, char **, int);
 WIN_MSVCRT_IMP char *WIN_CDECL strerror(int);
 WIN_MSVCRT_IMP char *WIN_CDECL strstr(const char *, const char *);
 
+// typedef redefinition with different types /winnt.h/
+//#if !defined(_WIN32)
 typedef __INT_T INT;       /* native integer at least 32 bits */
+//#endif
 typedef unsigned int UINT; /* unsigned 32 bit native integer */
 #define ISDIGIT(c) ((c) >= '0' && (c) <= '9')
 

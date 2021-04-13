@@ -490,7 +490,7 @@ else()
 set_property(TARGET flang_static PROPERTY OUTPUT_NAME flang)
 endif()
 
-set(SHARED_LIBRARY TRUE)
+set(SHARED_LIBRARY FALSE)
 add_flang_library(flang_shared
   ${FTN_INTRINSICS_DESC_INDEP}
   ${FTN_INTRINSICS_DESC_DEP}

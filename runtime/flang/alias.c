@@ -75,7 +75,7 @@ extern int omp_get_thread_limit_()
 
 extern void omp_set_max_active_levels_(int max_levels)
 {
-  return omp_set_max_active_levels(max_levels);
+  omp_set_max_active_levels(max_levels);
 }
 
 extern int omp_get_max_active_levels_()
@@ -130,7 +130,7 @@ extern int omp_get_partition_num_places_()
 
 extern void omp_set_default_device_(int device_num)
 {
-  return omp_set_default_device(device_num);
+  omp_set_default_device(device_num);
 }
 
 extern int omp_get_default_device_()

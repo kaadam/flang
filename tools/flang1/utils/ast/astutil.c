@@ -13,8 +13,9 @@
 #include "gbldefs.h"
 
 #include "utils.h"
+#if !defined(_WIN32)
 #include <unistd.h>
-
+#endif
 #define ASTTMPFILE "ASTTMPFILE"
 
 /*  define macros and data for input line types:  */
