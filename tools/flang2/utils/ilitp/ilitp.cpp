@@ -70,7 +70,7 @@ static void do_CG_line(void);
 static void do_latency(const char *lat, int shift);
 static void do_SI_line(void);
 static int lookup_ili(const char *name);
-static void error(const char *text, const char *additional_text=nullptr);
+static void error(const char *text, const char *additional_text="");
 
 #define STASH(string) strcpy((char*)malloc(strlen(string) + 1), string)
 

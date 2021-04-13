@@ -82,7 +82,7 @@ else()
 endif()
 
 
-set(SHARED_LIBRARY TRUE)
+set(SHARED_LIBRARY FALSE)
 add_flang_library(flangrti_shared
   ${PGC_SRC_FILES}
   ${SHARED_SOURCES}

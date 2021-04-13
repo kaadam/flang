@@ -153,7 +153,11 @@ __io_ferror(void *p)
 int
 __io_getfd(void *fp)
 {
+#if defined(_WIN32)
+  return _fileno(fp);
+#else
   return (((FILE *)fp)->_fileno);
+#endif
 }
 
 /* is a tty? */

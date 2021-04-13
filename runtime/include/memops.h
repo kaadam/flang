@@ -14,6 +14,10 @@ extern "C" {
 #endif
 
 #if defined(INLINE_MEMOPS)
+#if defined(_WIN32)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 #include <sys/types.h>
 
 static inline void

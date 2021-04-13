@@ -28,7 +28,11 @@ typedef void VOID;
  * Defining it as int64_t seems like a good idea but it leads to warnings
  * in nonportable code that really expects long.
  */
-typedef long BIGINT;		/* native integer "at least 64 bits" */
+ #if defined (_WIN64)
+typedef int64_t BIGINT;		/* native integer "at least 64 bits" */
+#else
+typedef long BIGINT;
+#endif
 typedef unsigned long BIGUINT;	/* native unsigned integer "at least 64 bits" */
 
 typedef int64_t BIGINT64;	/* 64-bit native integer */

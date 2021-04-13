@@ -18,6 +18,8 @@
 #ifndef _WIN64
 #include <sys/time.h>
 #include <unistd.h>
+#else
+#include <winsock.h> // struct timeval
 #endif
 #include "stdioInterf.h"
 #include "fioMacros.h"
