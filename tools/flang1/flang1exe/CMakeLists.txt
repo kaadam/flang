@@ -158,7 +158,7 @@ target_link_libraries(flang1
   scutil
   )
 
-if (NOT MSVC)
+if (NOT WIN32)
   target_link_libraries(flang1 PRIVATE m)
 endif()
 

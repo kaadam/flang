@@ -484,13 +484,13 @@ set_target_properties(flang_static
   PROPERTIES
   Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/include-static
 )
-if (MSVC)
+if (WIN32)
 set_property(TARGET flang_static PROPERTY OUTPUT_NAME libflang)
 else()
 set_property(TARGET flang_static PROPERTY OUTPUT_NAME flang)
 endif()
 
-set(SHARED_LIBRARY FALSE)
+set(SHARED_LIBRARY TRUE)
 add_flang_library(flang_shared
   ${FTN_INTRINSICS_DESC_INDEP}
   ${FTN_INTRINSICS_DESC_DEP}
@@ -503,7 +503,7 @@ add_flang_library(flang_shared
 set_property(TARGET flang_shared PROPERTY OUTPUT_NAME flang)
 target_link_libraries(flang_shared flangrti_shared)
 # Resolve symbols against libm and librt
-if (NOT MSVC)
+if (NOT WIN32)
   target_link_libraries(flang_shared m rt)
 else()
   set_target_properties(flang_shared PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -649,12 +649,13 @@ add_dependencies(flang_shared
   flang2
   )
 
-if (NOT MSVC)
+if (NOT WIN32)
   target_compile_options(flang_static PRIVATE -fPIC)
   target_compile_options(flang_shared PRIVATE -fPIC)
 else()
   set_target_properties(flang_static PROPERTIES LINKER_LANGUAGE CXX)
   set_target_properties(flang_shared PROPERTIES LINKER_LANGUAGE CXX)
+  target_compile_options(flang_shared PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-DPGDLL>)
 endif()
 
 target_compile_options(flang_static PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-Mreentrant>)

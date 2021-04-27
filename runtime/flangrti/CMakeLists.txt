@@ -75,7 +75,7 @@ add_flang_library(flangrti_static
   ${PGC_SRC_FILES}
   ${SHARED_SOURCES}
   )
-if (MSVC)
+if (WIN32)
   set_property(TARGET flangrti_static PROPERTY OUTPUT_NAME libflangrti)
 else()
   set_property(TARGET flangrti_static PROPERTY OUTPUT_NAME flangrti)
@@ -89,7 +89,7 @@ add_flang_library(flangrti_shared
   )
 
 # Resolve symbols against libm
-if (NOT MSVC)
+if (NOT WIN32)
   target_link_libraries(flangrti_shared PRIVATE m)
 endif()
 
@@ -135,7 +135,7 @@ target_include_directories(flangrti_shared
 set_target_properties(flangrti_shared flangrti_static
                       PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${FLANG_RTE_LIB_DIR})
 
-if (NOT MSVC)
+if (NOT WIN32)
   target_compile_options(flangrti_static PRIVATE -fPIC)
   target_compile_options(flangrti_shared PRIVATE -fPIC)
 else()

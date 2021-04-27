@@ -15,8 +15,10 @@
 #include <string.h>
 #include <ctype.h>
 #include <memory.h>
-#ifndef _WIN64
+#ifndef _WIN32
 #include <sys/time.h>
+#else
+#include <io.h>
 #endif
 
 #include "global.h"
@@ -36,7 +38,7 @@
 #if   defined(TARGET_OSX)
 #include <crt_externs.h>
 #elif defined(_WIN64)
-/* OPENTOOLS14 has changed the name.  wrap _environ for all of windowws */
+/* OPENTOOLS14 has changed the name.  wrap _environ for all of windows */
 char **__io_environ();
 #else
 WIN_MSVCRT_IMP char **environ;
@@ -377,7 +379,7 @@ __fort_initarg()
   }
 #if   defined(TARGET_OSX)
   env = *_NSGetEnviron();
-#elif defined(__WIN64)
+#elif defined(_WIN64)
   env = __io_environ();
 #else
   env = environ;

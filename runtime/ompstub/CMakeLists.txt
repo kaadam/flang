@@ -13,7 +13,7 @@ else()
 set_property(TARGET ompstub_static PROPERTY OUTPUT_NAME ompstub)
 endif()
 
-set(SHARED_LIBRARY TRUE)
+set(SHARED_LIBRARY FALSE)
 add_flang_library(ompstub_shared ${OMPSTUB_SRC})
 set_property(TARGET ompstub_shared PROPERTY OUTPUT_NAME ompstub)
 if (MSVC)
