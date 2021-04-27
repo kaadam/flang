@@ -18,7 +18,7 @@
 #define _PGHPFENT_H_
 
 /* Alternate Fortran entry symbol formats */
-#if defined(_WIN64)
+#if !defined(_WIN64)
 #if defined(DESC_I8)
 #define ENTF90IO(UC, LC) pgf90io_##LC##_i8
 #define ENTF90(UC, LC) pgf90_##LC##_i8
@@ -45,7 +45,7 @@
 #define ENTCRFTN(UC, LC) pgcrhpf_##LC
 #define ENTCOMN(UC, LC) pghpf_##LC##_
 
-#elif defined(_WIN32)
+#elif !defined(_WIN32)
 #define ENTF90(UC, LC) pgf90_##LC
 #define ENTF90IO(UC, LC) pgf90io_##LC
 #define ENTFTN(UC, LC) pghpf_##LC
