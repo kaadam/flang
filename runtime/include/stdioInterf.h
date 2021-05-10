@@ -9,7 +9,9 @@
 
 #include <stdio.h>  /* TODO: try moving to  pgstdio.h */
 #include <string.h>
-#if !defined(_WIN32)
+#if defined(_WIN32)
+#include <windows.h>
+#else
 #include <unistd.h>
 #endif
 #include <stdlib.h>

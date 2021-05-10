@@ -21,8 +21,8 @@
 
 #define INT64 __FLANG_INT64
 #define UINT64 __FLANG_UINT64
-#define INT __FLANG_INT
-#define UINT __FLANG_UINT
+//#define INT __FLANG_INT
+//#define UINT __FLANG_UINT
 #endif
 
 typedef int DBLINT64[2];
@@ -56,9 +56,9 @@ WIN_MSVCRT_IMP char *WIN_CDECL strerror(int);
 WIN_MSVCRT_IMP char *WIN_CDECL strstr(const char *, const char *);
 
 // typedef redefinition with different types /winnt.h/
-//#if !defined(_WIN32)
+#if !defined(_WIN32)
 typedef __INT_T INT;       /* native integer at least 32 bits */
-//#endif
+#endif
 typedef unsigned int UINT; /* unsigned 32 bit native integer */
 #define ISDIGIT(c) ((c) >= '0' && (c) <= '9')
 

@@ -93,7 +93,6 @@ if (NOT WIN32)
   target_link_libraries(flangrti_shared PRIVATE m)
 endif()
 
-
 # Resolve symbols against libpthread
 find_package(Threads REQUIRED)
 if (CMAKE_THREAD_LIBS_INIT)
@@ -102,19 +101,26 @@ endif()
 
 # Import OpenMP
 if (NOT DEFINED LIBOMP_EXPORT_DIR)
+  # ON Windows no ARM, there is no prebuilt OpenMP libary yet, let's use ompstub for linking
+  if(NOT (WIN32 AND ${TARGET_ARCHITECTURE} STREQUAL "aarch64"))
   find_library( 
     FLANG_LIBOMP
     NAMES omp libomp
     HINTS ${CMAKE_BINARY_DIR}/lib)
   target_link_libraries(flangrti_shared PRIVATE ${FLANG_LIBOMP})
+  else()
+   target_link_libraries(flangrti_shared PRIVATE ompstub_shared)
+  endif()
 endif()
 
 find_library( 
   LIBPGMATH
   NAMES pgmath libpgmath
   HINTS ${CMAKE_BINARY_DIR}/lib)
+  message(${LIBPGMATH})
 target_link_libraries(flangrti_shared PRIVATE ${LIBPGMATH})
 
+if(NOT WIN32)
 if( ${TARGET_ARCHITECTURE} STREQUAL "aarch64" )
   target_compile_definitions(flangrti_static PRIVATE TARGET_LINUX_ARM)
   target_compile_definitions(flangrti_shared PRIVATE TARGET_LINUX_ARM)
@@ -122,9 +128,10 @@ elseif( ${TARGET_ARCHITECTURE} STREQUAL "ppc64le" )
   target_compile_definitions(flangrti_static PRIVATE TARGET_LINUX_POWER)
   target_compile_definitions(flangrti_shared PRIVATE TARGET_LINUX_POWER)
 endif()
+endif()
 
 set_property(TARGET flangrti_shared PROPERTY OUTPUT_NAME flangrti)
-set(SHARED_LIBRARY FALSE)
+set(SHARED_LIBRARY TRUE)
 
 target_include_directories(flangrti_static
   PRIVATE

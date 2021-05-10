@@ -18,3 +18,4 @@ __mth_i_dmod(double f, double g)
   return fmod(f, g);
 }
 #endif
+#endif
