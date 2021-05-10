@@ -114,8 +114,8 @@
 #define DCLEN64(ARG) , __CLEN_T ARG##_len
 #define CADR(ARG) (ARG##_adr)
 #define CLEN(ARG) (ARG##_len)
-
-#if defined(PGDLL) && defined(_DLL) && defined(_WIN32)
+//defined(PGDLL) &&
+#if  defined(_DLL) && defined(_WIN32)
 #define WIN_EXP __declspec(dllexport)
 #define WIN_IMP extern __declspec(dllimport)
 #else

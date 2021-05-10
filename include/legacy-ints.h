@@ -20,8 +20,9 @@ extern "C" {
 
 typedef int INT;	/* native integer at least 32 bits */
 typedef unsigned UINT;	/* unsigned 32 bit native integer */
+#ifndef _WIN32
 typedef void VOID;
-
+#endif
 /* BIGINT is a mess.  It's defined as INT on many 32-bit targets,
  * despite comments that read "native integer at least 64 bits"
  * (as if things would still work if 128-bit integers were used).

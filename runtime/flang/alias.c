@@ -5,7 +5,7 @@
  *
  */
 
-#ifdef _WIN64
+#if defined(_WIN64) && !defined(_M_ARM64)
 #include "omp.h"
 
 extern void omp_set_num_threads_(int num_threads)
@@ -105,7 +105,8 @@ extern int omp_get_active_level_()
 
 extern int omp_in_final_()
 {
-  return omp_in_final();
+  //return omp_in_final();
+  return 0;
 }
 
 extern int omp_get_cancellation_()

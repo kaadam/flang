@@ -37,7 +37,7 @@
 
 #if   defined(TARGET_OSX)
 #include <crt_externs.h>
-#elif defined(_WIN64)
+#elif defined(_WIN32)
 /* OPENTOOLS14 has changed the name.  wrap _environ for all of windows */
 char **__io_environ();
 #else

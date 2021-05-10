@@ -7,9 +7,9 @@
 
 #include <string.h>
 #include <ctype.h>
-#if !defined(_WIN64)
+//#if !defined(_WIN64)
 #include <fenv.h>
-#endif
+//#endif
 #include "fioMacros.h"
 #include "stdioInterf.h"
 #include "fio_fcb_flags.h"
@@ -30,9 +30,10 @@ union ieee {
   } v;
   int i[2];
 };
-
+#ifndef _WIN32
 typedef long INT;
 typedef unsigned long UINT;
+#endif
 typedef double IEEE64;
 typedef enum { ZERO, NIL, NORMAL, BIG, INFIN, NAN, DIVZ, SUBNORMAL } VAL;
 typedef struct {
